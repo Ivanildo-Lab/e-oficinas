@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="box box-primary">
+    <div class="box-header with-border"><h3 class="box-title">{{ titulo }}</h3></div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="box-body">
+            <div class="form-group">
+                <label>Nome do Mecânico</label>
+                {{ form.nome }}
+            </div>
+            <div class="checkbox">
+                <label>{{ form.ativo }} Mecânico Ativo (Aparece na OS)</label>
+            </div>
+        </div>
+        <div class="box-footer">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{% url 'workshops:lista_mecanicos' %}" class="btn btn-default">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

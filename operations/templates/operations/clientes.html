@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block titulo_pagina %}Gestão de Clientes{% endblock %}
+
+{% block content %}
+<div class="box box-primary">
+    <div class="box-header with-border">
+        <h3 class="box-title"><i class="fa fa-users"></i> Gestão de Clientes e Frotas</h3>
+        <div class="box-tools">
+            <a href="{% url 'operations:novo_cliente' %}" class="btn btn-sm btn-success">
+                <i class="fa fa-plus"></i> Novo Cliente
+            </a>
+        </div>
+    </div>
+    <div class="box-body table-responsive no-padding">
+        <table class="table table-hover">
+            <thead class="bg-gray">
+                <tr>
+                    <th style="width: 30%">Cliente / Contato</th>
+                    <th style="width: 50%">Veículos Cadastrados</th>
+                    <th class="text-center" style="width: 20%">Ações Cliente</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr style="border-top: 2px solid #eee;">
+                    <td>
+                        <strong style="font-size: 1.1em; color: #333;">{{ cliente.nome|upper }}</strong><br>
+                        <small class="text-muted"><i class="fa fa-phone text-green"></i> {{ cliente.telefone }}</small>
+                    </td>
+                    <td>
+                        {% for v in cliente.veiculo_set.all %}
+                        <div class="label label-default" style="display:inline-block; margin-bottom: 5px; padding: 6px; font-size: 0.9em; border: 1px solid #ccc; color: #444;">
+                            <i class="fa fa-car text-blue"></i> {{ v.placa }} - {{ v.modelo }}
+                            
+                            <!-- Botão Editar Veículo -->
+                            <a href="{% url 'operations:editar_veiculo' v.pk %}" class="text-orange" style="margin-left: 8px;" title="Editar Veículo">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                            
+                            <!-- Botão Excluir Veículo (Chama o Modal) -->
+                            <a href="javascript:void(0)" 
+                               onclick="confirmarExclusao('{% url 'operations:excluir_veiculo' v.pk %}', 'VEÍCULO: {{ v.placa }} - {{ v.modelo }}')" 
+                               class="text-red" style="margin-left: 5px;" title="Excluir Veículo">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <span class="text-muted small italic">Nenhum veículo vinculado.</span>
+                        {% endfor %}
+                        <br>
+                        <a href="{% url 'operations:novo_veiculo' %}?cliente={{ cliente.id }}" class="btn btn-xs btn-default text-blue" style="margin-top: 5px; border-style: dashed;">
+                            <i class="fa fa-plus"></i> Adicionar Veículo
+                        </a>
+                    </td>
+                    <td class="text-center" style="vertical-align: middle;">
+                        <div class="btn-group">
+                            <!-- Botão Editar Cliente -->
+                            <a href="{% url 'operations:editar_cliente' cliente.pk %}" class="btn btn-sm btn-default" title="Editar Cliente">
+                                <i class="fa fa-pencil text-orange"></i>
+                            </a>
+                            
+                            <!-- Botão Excluir Cliente (Chama o Modal) -->
+                            <button type="button" 
+                                    onclick="confirmarExclusao('{% url 'operations:excluir_cliente' cliente.pk %}', 'CLIENTE: {{ cliente.nome|upper|addslashes }}')" 
+                                    class="btn btn-sm btn-default" title="Excluir Cliente">
+                                <i class="fa fa-trash text-red"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center" style="padding: 30px;">
+                        <i class="fa fa-info-circle text-blue" style="font-size: 20px;"></i><br>
+                        <span class="text-muted">Nenhum cliente cadastrado nesta oficina.</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

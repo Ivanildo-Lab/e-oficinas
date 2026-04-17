@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block titulo_cabecalho %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Dados Cadastrais</h3>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-8 form-group">
+                            <label>Nome Completo</label>
+                            {{ form.nome }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Telefone / WhatsApp</label>
+                            {{ form.telefone }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label>E-mail</label>
+                            {{ form.email }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label>Endereço Completo</label>
+                            {{ form.endereco }}
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Salvar Cliente</button>
+                    <a href="{% url 'operations:lista_clientes' %}" class="btn btn-default">Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

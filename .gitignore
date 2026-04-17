@@ -1,0 +1,24 @@
+# Ambientes Virtuais
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+media/
+static_root/
+
+# Segredos e Configurações de IDE
+.env
+.vscode/
+.idea/
+
+# Sistema Operacional
+Thumbs.db
+.DS_Store

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block titulo_cabecalho %}Cadastro de Veículo{% endblock %}
+{% block subtitulo_cabecalho %}Dados técnicos para Checklist{% endblock %}
+
+{% block content %}
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-9">
+            <div class="box box-success">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><i class="fa fa-car"></i> Informações do Veículo</h3>
+                </div>
+                <div class="box-body">
+                    <!-- LINHA 1: PROPRIETÁRIO E PLACA -->
+                    <div class="row">
+                        <div class="col-md-8 form-group">
+                            <label>Proprietário (Cliente)</label>
+                            {{ form.cliente }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Placa</label>
+                            {{ form.placa }}
+                        </div>
+                    </div>
+
+                    <!-- LINHA 2: MARCA, MODELO, ANO -->
+                    <div class="row">
+                        <div class="col-md-4 form-group">
+                            <label>Marca</label>
+                            {{ form.marca }}
+                        </div>
+                        <div class="col-md-5 form-group">
+                            <label>Veículo (Modelo)</label>
+                            {{ form.modelo }}
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Ano / Modelo</label>
+                            {{ form.ano }}
+                        </div>
+                    </div>
+
+                    <!-- LINHA 3: VERSÃO, MOTOR, COR -->
+                    <div class="row">
+                        <div class="col-md-4 form-group">
+                            <label>Versão</label>
+                            {{ form.versao }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Motor</label>
+                            {{ form.motor }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Cor</label>
+                            {{ form.cor }}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- LINHA 4: TRANSMISSÃO, COMBUSTÍVEL, PORTAS, ABS -->
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            <label>Transmissão</label>
+                            {{ form.transmissao }}
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Combustível</label>
+                            {{ form.combustivel }}
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label>Portas</label>
+                            {{ form.portas }}
+                        </div>
+                        <div class="col-md-3 form-group text-center">
+                            <label style="display: block;">Possui ABS?</label>
+                            {{ form.tem_abs }} <span class="text-muted">Sim</span>
+                        </div>
+                    </div>
+
+                    <!-- LINHA 5: CHASSI -->
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label>Número do Chassi</label>
+                            {{ form.chassi }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fa fa-save"></i> Salvar Veículo
+                    </button>
+                    <a href="{% url 'operations:lista_clientes' %}" class="btn btn-default btn-lg">Cancelar</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- COLUNA LATERAL DE APOIO -->
+        <div class="col-md-3">
+            <div class="box box-solid box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><i class="fa fa-info-circle"></i> Importante</h3>
+                </div>
+                <div class="box-body">
+                    <p class="text-sm">Os dados preenchidos aqui serão utilizados para gerar o <b>Checklist Automático</b> na abertura da Ordem de Serviço.</p>
+                    <p class="text-sm">Preencha o <b>Chassi</b> e a <b>Versão</b> para garantir a precisão na compra de peças futuras.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

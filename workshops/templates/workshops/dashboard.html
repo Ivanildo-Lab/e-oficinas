@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-aqua">
+            <div class="inner"><h3>{{ total_os_abertas }}</h3><p>OS Abertas</p></div>
+            <div class="icon"><i class="fa fa-wrench"></i></div>
+            <a href="{% url 'operations:lista_os' %}" class="small-box-footer">Ver todas <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-green">
+            <div class="inner"><h3><sup style="font-size: 20px">R$</sup> 0</h3><p>Faturamento Mês</p></div>
+            <div class="icon"><i class="fa fa-money"></i></div>
+            <a href="#" class="small-box-footer">Relatórios <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-yellow">
+            <div class="inner"><h3>{{ total_veiculos }}</h3><p>Veículos no Pátio</p></div>
+            <div class="icon"><i class="fa fa-car"></i></div>
+            <a href="{% url 'operations:lista_clientes' %}" class="small-box-footer">Ver Lista <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-red">
+            <div class="inner"><h3>0</h3><p>Estoque Baixo</p></div>
+            <div class="icon"><i class="fa fa-warning"></i></div>
+            <a href="#" class="small-box-footer">Repor <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="box box-primary">
+    <div class="box-header with-border"><h3 class="box-title">Últimas Ordens de Serviço</h3></div>
+    <div class="box-body table-responsive no-padding">
+        <table class="table table-hover">
+            <thead>
+                <tr><th>ID</th><th>Cliente</th><th>Veículo</th><th>Status</th><th class="text-center">Ações</th></tr>
+            </thead>
+            <tbody>
+                {% for os in ultimas_os %}
+                <tr>
+                    <td>{{ os.id|stringformat:"03d" }}</td>
+                    <td>{{ os.veiculo.cliente.nome }}</td>
+                    <td>{{ os.veiculo.modelo }} ({{ os.veiculo.placa }})</td>
+                    <td><span class="label label-primary">Aberta</span></td>
+                    <td class="text-center">
+                        <a href="{% url 'operations:detalhes_os' os.id %}" class="btn btn-xs btn-default border-blue"><i class="fa fa-print text-blue"></i> Ver / Imprimir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

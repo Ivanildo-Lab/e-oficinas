@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>E-OFICINAS | Login</title>
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <style>
+        body, html { height: 100%; margin: 0; font-family: 'Source Sans Pro', sans-serif; }
+        .bg-image {
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                            url("{% static 'img/bg_login.jpg' %}"); /* IMAGEM LOCAL */
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .logo-icon {
+            background: #3c8dbc;
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: white; font-size: 35px; margin-bottom: 20px;
+        }
+        .btn-primary {
+            background: #3c8dbc; border: none; height: 45px;
+            border-radius: 8px; font-weight: 600; width: 100%; transition: 0.3s;
+        }
+        .btn-primary:hover { background: #367fa9; transform: translateY(-2px); }
+        .input-group-addon { background: white; border-right: none; }
+        .form-control { border-left: none; height: 45px; }
+    </style>
+</head>
+<body>
+
+<div class="bg-image">
+    <div class="login-card">
+        <div class="logo-icon">
+            <i class="fa fa-wrench"></i>
+        </div>
+        
+        <h2 style="font-weight: 700; margin-top: 0;">E-OFICINAS</h2>
+        <p style="color: #666; margin-bottom: 30px;">Acesse para gerenciar sua oficina</p>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger" style="font-size: 12px; text-align: left;">
+                    Usuário ou senha incorretos.
+                </div>
+            {% endif %}
+
+            <div class="form-group" style="text-align: left;">
+                <label>Usuário</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    <input type="text" name="username" class="form-control" placeholder="Seu usuário" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="text-align: left;">
+                <label>Senha</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="Sua senha" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">ENTRAR NO SISTEMA</button>
+        </form>
+
+        <div style="margin-top: 30px; font-size: 11px; color: #888;">
+            © 2026 <b>Gomes OS SaaS</b>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="box box-primary">
+    <div class="box-header with-border">
+        <h3 class="box-title"><i class="fa fa-wrench"></i> Equipe de Mecânicos</h3>
+        <div class="box-tools">
+            <a href="{% url 'workshops:novo_mecanico' %}" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Novo Mecânico</a>
+        </div>
+    </div>
+    <div class="box-body no-padding">
+        <table class="table table-hover">
+            <tr>
+                <th>Nome</th>
+                <th>Status</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            {% for m in mecanicos %}
+            <tr>
+                <td>{{ m.nome }}</td>
+                <td>
+                    {% if m.ativo %}
+                        <span class="label label-success">Ativo</span>
+                    {% else %}
+                        <span class="label label-danger">Inativo</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <a href="{% url 'workshops:editar_mecanico' m.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
+                    <button class="btn btn-xs btn-danger" onclick="confirmarExclusao('{% url 'workshops:excluir_mecanico' m.pk %}', '{{ m.nome }}')"><i class="fa fa-trash"></i></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

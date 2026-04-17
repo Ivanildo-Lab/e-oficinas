@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_cabecalho %}Ordem de Serviço{% endblock %}
+
+{% block content %}
+<!-- EXIBIÇÃO DE ERROS -->
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-ban"></i> Erro ao salvar!</h4>
+    <ul>
+        {% for field in form %}
+            {% if field.errors %}
+                <li>{{ field.label }}: {{ field.errors|striptags }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" id="osForm">
+    {% csrf_token %}
+
+    <div class="box box-danger">
+        <!-- CABEÇALHO -->
+        <div class="box-header with-border">
+            <div class="row">
+                <div class="col-md-3">
+                    {% if oficina_logada.logo %}<img src="{{ oficina_logada.logo.url }}" style="max-height: 80px;">{% endif %}
+                </div>
+                <div class="col-md-6 text-center">
+                    <h3 style="font-weight: 900; margin-bottom: 0;">{{ oficina_logada.nome|upper }} - CHECKLIST</h3>
+                    <small class="text-red">Preencha/Corrija os campos abaixo</small>
+                    
+                    <div style="margin-top: 15px; width: 300px; display: inline-block;">
+                        <label><i class="fa fa-wrench"></i> MECÂNICO RESPONSÁVEL:</label>
+                        {{ form.mecanico }}
+                    </div>
+                </div>
+                <div class="col-md-3 text-right">
+                    <div class="well well-sm text-center" style="display:inline-block; padding: 5px; margin-bottom: 0;">
+                        POSSUI CADASTRO?<br>
+                        <input type="checkbox" checked disabled> SIM &nbsp; <input type="checkbox" disabled> NÃO
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-body">
+
+            <!-- DADOS DO CLIENTE -->
+            <div class="panel panel-default">
+                <div class="panel-heading"><i class="fa fa-user"></i> DADOS DO CLIENTE</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <label>Nome:</label>
+                            <input type="text" id="cli_nome" class="form-control" readonly style="background: #f4f4f4;">
+                        </div>
+                        <div class="col-md-3"><label>Telefone:</label><input type="text" class="form-control" id="cli_tel" readonly style="background: #f4f4f4;"></div>
+                        <div class="col-md-4"><label>WhatsApp:</label>{{ form.whatsapp }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><i class="fa fa-calendar"></i> HORÁRIOS</div>
+                        <div class="panel-body">
+                            <div class="form-group"><label>Horário orçamento:</label>{{ form.horario_orcamento }}</div>
+                            <div class="form-group"><label>Data atual:</label><input type="text" class="form-control" value="{% if os %}{{ os.data_abertura|date:'d/m/Y' }}{% else %}{% now 'd/m/Y' %}{% endif %}" readonly></div>
+                            <div class="form-group"><label>Previsão entrega:</label>{{ form.data_entrega }}</div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><i class="fa fa-columns"></i> QUANTIDADE DE PORTAS</div>
+                        <div class="panel-body text-center">
+                            <label class="radio-inline"><input type="radio" id="portas_2" disabled> 2 PORTAS</label>
+                            <label class="radio-inline"><input type="radio" id="portas_4" disabled> 4 PORTAS</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading bg-gray"><i class="fa fa-car"></i> DADOS DO VEÍCULO</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-8 form-group"><label>Veículo / Placa (Selecione):</label>{{ form.veiculo }}</div>
+                                <div class="col-md-4 form-group"><label>Km Atual:</label>{{ form.km_atual }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group"><label>Marca:</label><input type="text" id="v_marca" class="form-control" readonly></div>
+                                <div class="col-md-6 form-group"><label>Modelo:</label><input type="text" id="v_modelo" class="form-control" readonly></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group"><label>Versão:</label><input type="text" id="v_versao" class="form-control" readonly></div>
+                                <div class="col-md-6 form-group"><label>Motor:</label><input type="text" id="v_motor" class="form-control" readonly></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group"><label>Ano / Modelo:</label><input type="text" id="v_ano" class="form-control" readonly></div>
+                                <div class="col-md-6 form-group"><label>Cor:</label><input type="text" id="v_cor" class="form-control" readonly></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6"><label>Transmissão:</label><br>
+                                    <label class="radio-inline"><input type="radio" id="trans_m" disabled> Manual</label>
+                                    <label class="radio-inline"><input type="radio" id="trans_a" disabled> Automática</label>
+                                </div>
+                                <div class="col-md-6"><label>ABS:</label><br>
+                                    <label class="radio-inline"><input type="radio" id="abs_s" disabled> Sim</label>
+                                    <label class="radio-inline"><input type="radio" id="abs_n" disabled> Não</label>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:10px">
+                                <div class="col-md-12"><label>Chassi:</label><input type="text" id="v_chassi" class="form-control" readonly></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading text-bold"><i class="fa fa-commenting"></i> SERVIÇO SOLICITADO</div>
+                <div class="panel-body">{{ form.servico_solicitado }}</div>
+            </div>
+
+            <!-- FAIXA CENTRAL: DESENHOS E ASSINATURA -->
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-7 text-center" style="border-right: 1px solid #eee;">
+                            <label>MARQUE OS RISCOS NO DESENHO:</label>
+                            <div style="background: #fff; border: 1px solid #ddd; display: inline-block; padding: 5px;">
+                                <canvas id="canvasAvarias" width="600" height="250" style="cursor: crosshair; max-width: 100%; height: auto;"></canvas>
+                            </div>
+                            <br><button type="button" class="btn btn-xs btn-warning" onclick="limparCanvas()">Limpar Desenho</button>
+                            <input type="hidden" name="mapa_avarias_base64" id="mapa_avarias_base64" value="{{ os.mapa_avarias_base64|default:'' }}">
+                            <input type="hidden" name="assinatura_cliente_base64" id="assinatura_cliente_base64" value="{{ os.assinatura_cliente_base64|default:'' }}">
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-xs-7 text-center">
+                                    <label>COMBUSTÍVEL</label>
+                                    <input type="range" name="nivel_combustivel" min="0" max="100" value="{{ os.nivel_combustivel|default:0 }}" id="fuelRange">
+                                    <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>E</span><span>1/2</span><span>F</span></div>
+                                </div>
+                                <div class="col-xs-5 text-center">
+                                    <label>DOCUMENTO?</label><br>
+                                    {{ form.tem_documento }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="text-center">
+                                <label>ASSINATURA DO CLIENTE:</label>
+                                <div style="border: 1px solid #ccc; background: #fafafa; display: inline-block;">
+                                    <canvas id="canvasAssinatura" width="300" height="120"></canvas>
+                                </div>
+                                <br><button type="button" class="btn btn-xs btn-default" onclick="limparAssinatura()">Refazer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO ÓLEO E ANOMALIA -->
+            <div class="row" style="display: flex; flex-wrap: wrap;">
+                <div class="col-md-6" style="display: flex;">
+                    <div class="panel panel-default" style="width: 100%;">
+                        <div class="panel-heading text-bold"><i class="fa fa-tint"></i> ÚLTIMA TROCA DE ÓLEO</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6 form-group"><label>Data:</label>{{ form.ultima_troca_oleo_data }}</div>
+                                <div class="col-md-6 form-group"><label>Km:</label>{{ form.ultima_troca_oleo_km }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" style="display: flex;">
+                    <div class="panel panel-default" style="width: 100%;">
+                        <div class="panel-heading text-bold"><i class="fa fa-warning"></i> ANOMALIA</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>luz da injeção acesa!</label><br>
+                                    <label class="radio-inline"><input type="radio" name="luz_injecao_acesa" value="True" {% if os.luz_injecao_acesa %}checked{% endif %}> SIM</label>
+                                    <label class="radio-inline"><input type="radio" name="luz_injecao_acesa" value="False" {% if not os.luz_injecao_acesa %}checked{% endif %}> NÃO</label>
+                                </div>
+                                <div class="col-md-6 text-muted small" style="border-left: 1px solid #eee;">Valor do diagnóstico simples:<br><strong>a partir de R$150</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHECKLIST FINAL (COM PADRÃO "NÃO") -->
+            <div class="panel panel-default">
+                <div class="panel-heading"><i class="fa fa-check-square-o"></i> CHECKLIST</div>
+                <div class="panel-body">
+                    <div class="row" style="margin-bottom: 20px; background: #fdfdfd; padding: 10px 0;">
+                        <div class="col-md-3"><label>{{ form.capa_protecao_frontal }} &nbsp; Capa proteção</label></div>
+                        <div class="col-md-3"><label>{{ form.capa_banco }} &nbsp; Capa banco</label></div>
+                        <div class="col-md-3"><label>{{ form.filme_volante }} &nbsp; Filme volante</label></div>
+                        <div class="col-md-3"><label>{{ form.filme_cambio_freio }} &nbsp; Filme câmbio</label></div>
+                    </div>
+                    <div class="row">
+                        <!-- COLUNA ENTRADA -->
+                        <div class="col-md-6" style="border-right: 1px solid #eee;">
+                            <h4 class="text-bold">ENTRADA</h4>
+                            <table class="table table-condensed">
+                                {% if os %}
+                                    {% for item in os.itens_checklist.all %}
+                                        {% if item.fase == 'entrada' %}
+                                        <tr>
+                                            <td style="width: 130px; border-top: none;">
+                                                <label class="radio-inline"><input type="radio" name="item_{{ item.id }}" value="s" {% if item.status == 's' %}checked{% endif %}> SIM</label>
+                                                <label class="radio-inline"><input type="radio" name="item_{{ item.id }}" value="n" {% if item.status == 'n' or item.status == 'p' %}checked{% endif %}> NÃO</label>
+                                            </td>
+                                            <td class="small" style="border-top: none;">{{ item.descricao }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% for item in itens_entrada %}
+                                    <tr>
+                                        <td style="width: 130px; border-top: none;">
+                                            <label class="radio-inline"><input type="radio" name="chk_entrada_{{ forloop.counter }}" value="s"> SIM</label>
+                                            <label class="radio-inline"><input type="radio" name="chk_entrada_{{ forloop.counter }}" value="n" checked> NÃO</label>
+                                        </td>
+                                        <td class="small" style="border-top: none;">{{ item }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </table>
+                        </div>
+                        <!-- COLUNA SAÍDA -->
+                        <div class="col-md-6">
+                            <h4 class="text-bold">SAÍDA</h4>
+                            <table class="table table-condensed">
+                                {% if os %}
+                                    {% for item in os.itens_checklist.all %}
+                                        {% if item.fase == 'saida' %}
+                                        <tr>
+                                            <td style="width: 130px; border-top: none;">
+                                                <label class="radio-inline"><input type="radio" name="item_{{ item.id }}" value="s" {% if item.status == 's' %}checked{% endif %}> SIM</label>
+                                                <label class="radio-inline"><input type="radio" name="item_{{ item.id }}" value="n" {% if item.status == 'n' or item.status == 'p' %}checked{% endif %}> NÃO</label>
+                                            </td>
+                                            <td class="small" style="border-top: none;">{{ item.descricao }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% for item in itens_saida %}
+                                    <tr>
+                                        <td style="width: 130px; border-top: none;">
+                                            <label class="radio-inline"><input type="radio" name="chk_saida_{{ forloop.counter }}" value="s"> SIM</label>
+                                            <label class="radio-inline"><input type="radio" name="chk_saida_{{ forloop.counter }}" value="n" checked> NÃO</label>
+                                        </td>
+                                        <td class="small" style="border-top: none;">{{ item }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group"><label>CONCLUSÃO TÉCNICA</label>{{ form.conclusao_tecnica }}</div>
+
+        </div>
+
+<div class="box-footer">
+            <div class="pull-right">
+                <a href="{% url 'operations:lista_os' %}" class="btn btn-default btn-lg" style="margin-right: 10px;">
+                    <i class="fa fa-arrow-left"></i> CANCELAR E VOLTAR
+                </a>
+                <button type="submit" class="btn btn-primary btn-lg shadow">
+                    <i class="fa fa-save"></i> SALVAR ORDEM DE SERVIÇO
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    function carregarDadosVeiculo(vId) {
+        if (vId) {
+            $.getJSON('/operacoes/api/veiculo/' + vId + '/', function(data) {
+                $('#cli_nome').val(data.cliente_nome);
+                $('#cli_tel').val(data.cliente_tel);
+                $('#v_marca').val(data.marca);
+                $('#v_modelo').val(data.modelo);
+                $('#v_versao').val(data.versao);
+                $('#v_motor').val(data.motor);
+                $('#v_ano').val(data.ano);
+                $('#v_cor').val(data.cor);
+                $('#v_chassi').val(data.chassi);
+                $('#trans_m').prop('checked', data.transmissao == 'Manual');
+                $('#trans_a').prop('checked', data.transmissao == 'Automatica');
+                $('#abs_s').prop('checked', data.tem_abs);
+                $('#abs_n').prop('checked', !data.tem_abs);
+                $('#comb_e').prop('checked', data.combustivel == 'Etanol');
+                $('#comb_g').prop('checked', data.combustivel == 'Gasolina');
+                $('#comb_f').prop('checked', data.combustivel == 'Flex');
+                $('#comb_d').prop('checked', data.combustivel == 'Diesel');
+                $('#portas_2').prop('checked', data.portas == '2');
+                $('#portas_4').prop('checked', data.portas == '4');
+            });
+        }
+    }
+
+    $('#id_veiculo').on('change', function() { carregarDadosVeiculo($(this).val()); });
+
+    var vIdInicial = $('#id_veiculo').val();
+    if(vIdInicial) { carregarDadosVeiculo(vIdInicial); }
+
+    // CANVAS AVARIAS
+    const canvasAvarias = document.getElementById('canvasAvarias');
+    const ctxAvarias = canvasAvarias.getContext('2d');
+    const imgCarro = new Image();
+    imgCarro.src = "{% static 'img/veiculos_checklist.png' %}";
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: (evt.clientX - rect.left) * (canvas.width / rect.width),
+            y: (evt.clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+    imgCarro.onload = () => {
+        ctxAvarias.drawImage(imgCarro, 0, 0, 600, 250);
+        {% if os.mapa_avarias_base64 %}
+            const imgSaved = new Image();
+            imgSaved.src = "{{ os.mapa_avarias_base64|safe }}";
+            imgSaved.onload = () => ctxAvarias.drawImage(imgSaved, 0, 0);
+        {% endif %}
+    };
+
+    let drawing = false;
+    canvasAvarias.addEventListener('mousedown', () => drawing = true);
+    canvasAvarias.addEventListener('mouseup', () => drawing = false);
+    canvasAvarias.addEventListener('mousemove', function(e) {
+        if (!drawing) return;
+        const pos = getMousePos(canvasAvarias, e);
+        ctxAvarias.fillStyle = "red";
+        ctxAvarias.beginPath();
+        ctxAvarias.arc(pos.x, pos.y, 3, 0, Math.PI*2);
+        ctxAvarias.fill();
+    });
+
+    window.limparCanvas = () => {
+        ctxAvarias.clearRect(0, 0, 600, 250);
+        ctxAvarias.drawImage(imgCarro, 0, 0, 600, 250);
+    };
+
+    // ASSINATURA
+    const canvasSig = document.getElementById('canvasAssinatura');
+    const signaturePad = new SignaturePad(canvasSig);
+    {% if os.assinatura_cliente_base64 %}
+        signaturePad.fromDataURL("{{ os.assinatura_cliente_base64|safe }}");
+    {% endif %}
+
+    window.limparAssinatura = () => signaturePad.clear();
+
+    $('#osForm').on('submit', function() {
+        $('#mapa_avarias_base64').val(canvasAvarias.toDataURL());
+        $('#assinatura_cliente_base64').val(signaturePad.toDataURL());
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>IMPRESSÃO OS #{{ os.id|stringformat:"04d" }}</title>
+    <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        body { font-family: 'Source Sans Pro', sans-serif; background: #fff; color: #000; }
+        .print-box { border: 1px solid #333; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .header-title { font-weight: 900; font-size: 20px; margin: 0; }
+        .section-title { background: #f4f4f4 !important; border: 1px solid #ddd; padding: 5px 10px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .label-field { font-weight: bold; text-transform: uppercase; font-size: 10px; color: #555; display: block; }
+        .value-field { font-size: 13px; border-bottom: 1px dotted #ccc; display: block; min-height: 20px; margin-bottom: 10px; }
+        table td { font-size: 11px; padding: 2px !important; border-top: none !important; }
+        .canvas-img { border: 1px solid #ddd; max-width: 100%; height: auto; }
+        @media print {
+            .no-print { display: none; }
+            body { margin: 0; padding: 10px; }
+            .print-box { border: 1px solid #000; }
+            .section-title { -webkit-print-color-adjust: exact; background-color: #f4f4f4 !important; }
+        }
+    </style>
+</head>
+<body onload="window.print();">
+
+    <div class="container-fluid">
+        <!-- CABEÇALHO -->
+        <div class="row" style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+            <div class="col-xs-3">
+                {% if os.oficina.logo %}<img src="{{ os.oficina.logo.url }}" style="max-height: 70px;">{% endif %}
+            </div>
+            <div class="col-xs-6 text-center">
+                <h1 class="header-title">{{ os.oficina.nome|upper }} - CHECKLIST</h1>
+                <small>O problema do seu carro é problema nosso.</small><br>
+                <small>Mecânico: <b>{{ os.mecanico.nome|upper }}</b></small>
+            </div>
+            <div class="col-xs-3 text-right">
+                <h4 style="margin:0">OS: <b>{{ os.id|stringformat:"04d" }}</b></h4>
+                <small>Data: {{ os.data_abertura|date:"d/m/Y H:i" }}</small>
+            </div>
+        </div>
+
+        <!-- DADOS DO CLIENTE -->
+        <div class="section-title">Dados do Cliente</div>
+        <div class="row">
+            <div class="col-xs-5"><span class="label-field">Nome</span><span class="value-field">{{ os.veiculo.cliente.nome }}</span></div>
+            <div class="col-xs-3"><span class="label-field">Telefone</span><span class="value-field">{{ os.veiculo.cliente.telefone }}</span></div>
+            <div class="col-xs-4"><span class="label-field">WhatsApp</span><span class="value-field">{{ os.whatsapp|default:"-" }}</span></div>
+        </div>
+
+        <div class="row">
+            <!-- HORÁRIOS -->
+            <div class="col-xs-4">
+                <div class="section-title">Horários</div>
+                <span class="label-field">Orçamento</span><span class="value-field">{{ os.horario_orcamento|default:"--:--" }}</span>
+                <span class="label-field">Previsão Entrega</span><span class="value-field">{{ os.data_entrega|date:"d/m/Y H:i" }}</span>
+            </div>
+            <!-- DADOS DO VEÍCULO -->
+            <div class="col-xs-8">
+                <div class="section-title">Dados do Veículo</div>
+                <div class="row">
+                    <div class="col-xs-6"><span class="label-field">Veículo/Placa</span><span class="value-field">{{ os.veiculo.modelo }} ({{ os.veiculo.placa }})</span></div>
+                    <div class="col-xs-3"><span class="label-field">KM</span><span class="value-field">{{ os.km_atual }}</span></div>
+                    <div class="col-xs-3"><span class="label-field">Cor</span><span class="value-field">{{ os.cor }}</span></div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4"><span class="label-field">Transmissão</span><span class="value-field">{{ os.transmissao }}</span></div>
+                    <div class="col-xs-4"><span class="label-field">Combustível</span><span class="value-field">{{ os.combustivel_tipo }}</span></div>
+                    <div class="col-xs-4"><span class="label-field">Chassi</span><span class="value-field">{{ os.chassi|default:"-" }}</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVIÇO SOLICITADO (ADICIONADO AQUI) -->
+        <div class="section-title">Serviço solicitado pelo cliente</div>
+        <div style="border: 1px solid #ddd; padding: 10px; min-height: 40px; margin-bottom: 10px; font-size: 13px;">
+            {{ os.servico_solicitado|default:"Nenhum relato específico." }}
+        </div>
+
+        <!-- DESENHOS E ASSINATURA -->
+        <div class="row" style="margin-top: 10px;">
+            <div class="col-xs-7 text-center">
+                <div class="section-title">Mapa de Avarias</div>
+                <img src="{{ os.mapa_avarias_base64 }}" class="canvas-img">
+            </div>
+            <div class="col-xs-5 text-center">
+                <div class="section-title">Combustível / Documento</div>
+                <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                    Nível: <b>{{ os.nivel_combustivel }}%</b> | Docto no Veículo: <b>{% if os.tem_documento %}SIM{% else %}NÃO{% endif %}</b>
+                </div>
+                <div class="section-title">Assinatura do Cliente</div>
+                <img src="{{ os.assinatura_cliente_base64 }}" style="max-height: 80px; border-bottom: 1px solid #000;">
+            </div>
+        </div>
+
+        <!-- CHECKLIST FINAL -->
+        <div class="row" style="margin-top: 15px;">
+            <div class="col-xs-6">
+                <div class="section-title">Checklist Entrada</div>
+                <table class="table">
+                    {% for item in os.itens_checklist.all %}{% if item.fase == 'entrada' %}
+                    <tr>
+                        <td width="30">{% if item.status == 's' %}[X]{% else %}[ ]{% endif %}</td>
+                        <td>{{ item.descricao }}</td>
+                    </tr>
+                    {% endif %}{% endfor %}
+                </table>
+            </div>
+            <div class="col-xs-6">
+                <div class="section-title">Checklist Saída</div>
+                <table class="table">
+                    {% for item in os.itens_checklist.all %}{% if item.fase == 'saida' %}
+                    <tr>
+                        <td width="30">{% if item.status == 's' %}[X]{% else %}[ ]{% endif %}</td>
+                        <td>{{ item.descricao }}</td>
+                    </tr>
+                    {% endif %}{% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <!-- CONCLUSÃO -->
+        <div class="section-title">Conclusão Técnica / Observações</div>
+        <div style="border: 1px solid #000; padding: 10px; min-height: 60px; font-size: 12px;">
+            {{ os.conclusao_tecnica|default:"Registro de inspeção finalizado conforme checklist acima." }}
+        </div>
+
+        <div class="text-center no-print" style="margin-top: 20px;">
+            <button onclick="window.print()" class="btn btn-primary">Imprimir</button>
+            <button onclick="window.close()" class="btn btn-default">Fechar Aba</button>
+        </div>
+    </div>
+</body>
+</html>

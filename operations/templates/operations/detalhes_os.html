@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post" id="osFinalizarForm">
+    {% csrf_token %}
+    <div class="box box-success">
+        <div class="box-header with-border">
+            <h3 class="box-title">FINALIZAÇÃO DE CHECKLIST - OS #{{ os.id|stringformat:"04d" }}</h3>
+            <div class="box-tools pull-right">
+                <a href="{% url 'operations:imprimir_os' os.id %}" target="_blank" class="btn btn-warning btn-sm">
+                    <i class="fa fa-print"></i> IMPRIMIR OS
+                </a>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <!-- Coluna ENTRADA (Apenas Visualização) -->
+                <div class="col-md-6" style="border-right: 2px solid #eee;">
+                    <h4 class="text-bold">ENTRADA (Registrado)</h4>
+                    <table class="table table-condensed">
+                        {% for item in os.itens_checklist.all %}
+                            {% if item.fase == 'entrada' %}
+                            <tr>
+                                <td>{% if item.status == 's' %}<i class="fa fa-check-square-o text-green"></i> SIM{% else %}<i class="fa fa-square-o text-red"></i> NÃO{% endif %}</td>
+                                <td>{{ item.descricao }}</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <!-- Coluna SAÍDA (Editável para Finalizar) -->
+                <div class="col-md-6">
+                    <h4 class="text-bold text-green">SAÍDA (Conferência Final)</h4>
+                    <table class="table table-condensed">
+                        {% for item in os.itens_checklist.all %}
+                            {% if item.fase == 'saida' %}
+                            <tr>
+                                <td style="width: 130px;">
+                                    <label class="radio-inline"><input type="radio" name="item_{{item.id}}" value="s" {% if item.status == 's' %}checked{% endif %}> SIM</label>
+                                    <label class="radio-inline"><input type="radio" name="item_{{item.id}}" value="n" {% if item.status == 'n' %}checked{% endif %}> NÃO</label>
+                                </td>
+                                <td>{{ item.descricao }}</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            
+            <hr>
+            <div class="form-group">
+                <label>CONCLUSÃO FINAL / OBSERVAÇÕES DE ENTREGA:</label>
+                <textarea name="conclusao_entrega" class="form-control" rows="3">{{ os.conclusao_tecnica }}</textarea>
+            </div>
+        </div>
+        <div class="box-footer">
+            <button type="submit" name="finalizar" class="btn btn-success btn-lg btn-block">SALVAR E FINALIZAR ORDEM DE SERVIÇO</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

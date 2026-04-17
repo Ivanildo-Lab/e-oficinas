@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>E-OFICINAS | {% block titulo_pagina %}Painel{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    
+    <!-- CSS AdminLTE 2 e Dependências via CDN -->
+    <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/skins/skin-blue.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+    <style>
+        /* Ajustes finos para o cabeçalho solicitado */
+        .main-header .logo-lg { display: flex; align-items: center; justify-content: center; height: 50px; }
+        .user-info-text { color: #fff; line-height: 50px; padding: 0 15px; float: left; font-size: 13px; }
+        .logout-btn { color: #fff; line-height: 50px; padding: 0 15px; float: left; background: rgba(0,0,0,0.1); transition: 0.3s; }
+        .logout-btn:hover { background: rgba(215, 57, 37, 0.9); color: #fff; text-decoration: none; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <!-- CABEÇALHO PRINCIPAL -->
+    <header class="main-header">
+        <!-- Logo (Lado Esquerdo - Apenas o Logo) -->
+        <a href="{% url 'workshops:dashboard' %}" class="logo">
+            <span class="logo-mini"><b>E</b>O</span>
+            <span class="logo-lg">
+                {% if oficina_logada.logo %}
+                    <img src="{{ oficina_logada.logo.url }}" style="max-height: 45px; max-width: 100%;">
+                {% else %}
+                    <b>E-OFICINAS</b>
+                {% endif %}
+            </span>
+        </a>
+
+        <!-- Barra Superior -->
+        <nav class="navbar navbar-static-top" role="navigation">
+            <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                <span class="sr-only">Toggle navigation</span>
+            </a>
+
+            <!-- Info do Usuário e Logout (Lado Direito) -->
+            <div class="navbar-custom-menu">
+                <div class="user-info-text hidden-xs">
+                    {{ user.username }} | <b>{{ oficina_logada.nome|upper }}</b>
+                </div>
+                
+                <!-- Botão de Sair (POST necessário para Django 5+) -->
+                <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();" class="logout-btn">
+                    <i class="fa fa-sign-out"></i> <span class="hidden-xs">Sair</span>
+                </a>
+                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <!-- MENU LATERAL -->
+    <aside class="main-sidebar">
+        <section class="sidebar">
+            <ul class="sidebar-menu" data-widget="tree">
+                <li class="header">MENU PRINCIPAL</li>
+                <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <a href="{% url 'workshops:dashboard' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
+                </li>
+
+                <li class="header">OPERACIONAL</li>
+                <li class="{% if 'os/nova' in request.path %}active{% endif %}">
+                    <a href="{% url 'operations:abrir_os' %}"><i class="fa fa-plus-circle text-aqua"></i> <span>Abrir Nova OS</span></a>
+                </li>
+                <li class="{% if 'os/' in request.path and 'nova' not in request.path %}active{% endif %}">
+                    <a href="{% url 'operations:lista_os' %}"><i class="fa fa-list-ul"></i> <span>Listar Ordens (OS)</span></a>
+                </li>
+                <li class="{% if 'clientes' in request.path %}active{% endif %}">
+                    <a href="{% url 'operations:lista_clientes' %}"><i class="fa fa-users"></i> <span>Clientes / Veículos</span></a>
+                </li>
+
+                <li class="header">GESTÃO E CONFIG.</li>
+                <li class="{% if 'mecanicos' in request.path %}active{% endif %}">
+                    <a href="{% url 'workshops:lista_mecanicos' %}"><i class="fa fa-wrench"></i> <span>Mecânicos</span></a>
+                </li>
+                <li><a href="#"><i class="fa fa-archive"></i> <span>Estoque de Peças</span></a></li>
+                <li><a href="#"><i class="fa fa-calendar"></i> <span>Agenda</span></a></li>
+            </ul>
+        </section>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>{% block titulo_cabecalho %}Dashboard{% endblock %} <small>{% block subtitulo_cabecalho %}{% endblock %}</small></h1>
+        </section>
+
+        <section class="content container-fluid">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </section>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer class="main-footer">
+        <div class="pull-right hidden-xs">SaaS Edition</div>
+        <strong>Copyright &copy; 2026 <a href="#">E-Oficinas</a>.</strong> Todos os direitos reservados.
+    </footer>
+
+</div>
+
+<!-- MODAL DE EXCLUSÃO GLOBAL -->
+<div class="modal fade" id="modal-exclusao" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-red">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><i class="fa fa-warning"></i> Confirmar Exclusão</h4>
+            </div>
+            <form id="form-exclusao" method="post">
+                {% csrf_token %}
+                <div class="modal-body text-center">
+                    <p style="font-size: 1.2em;">Você tem certeza que deseja excluir:</p>
+                    <h3 id="nome-objeto-exclusao" class="text-bold"></h3>
+                    <p class="text-danger">Esta ação é irreversível!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS OBRIGATÓRIOS -->
+<script src="https://adminlte.io/themes/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="https://adminlte.io/themes/AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="https://adminlte.io/themes/AdminLTE/dist/js/adminlte.min.js"></script>
+
+<!-- Script para o Modal de Exclusão -->
+<script>
+    function confirmarExclusao(url, nome) {
+        document.getElementById('form-exclusao').action = url;
+        document.getElementById('nome-objeto-exclusao').innerText = nome;
+        $('#modal-exclusao').modal('show');
+    }
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
