@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Visualizar Foto - OS #{{ foto.os.id }}</title>
+    <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #333; color: white; text-align: center; padding: 20px; }
+        .img-container { max-width: 90%; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,0.5); border: 5px solid #fff; border-radius: 10px; overflow: hidden; }
+        .img-container img { width: 100%; height: auto; }
+        .btn-back { margin-top: 20px; background: #3c8dbc; color: white; border: none; padding: 10px 30px; border-radius: 5px; font-weight: bold; }
+        .btn-back:hover { background: #367fa9; color: #fff; }
+        .info-top { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="info-top">
+        <h4>Visualizando Registro Fotográfico</h4>
+        <p>OS #{{ foto.os.id|stringformat:"04d" }} | Veículo: {{ foto.os.veiculo.placa }} | Enviada em: {{ foto.data_upload|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <div class="img-container">
+        <img src="{{ foto.foto.url }}" alt="Foto da Inspeção">
+    </div>
+
+    <button onclick="window.close()" class="btn-back">FECHAR ESTA JANELA</button>
+    <br>
+    <small class="text-muted">Dica: Se abriu em uma nova aba, você pode apenas fechá-la.</small>
+</body>
+</html>

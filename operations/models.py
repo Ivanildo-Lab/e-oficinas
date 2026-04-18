@@ -6,6 +6,8 @@ from workshops.models import Mecanico
 class Cliente(models.Model):
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     nome = models.CharField(max_length=200)
+    cpf = models.CharField(max_length=14, blank=True, null=True, verbose_name="CPF") 
+    cnpj = models.CharField(max_length=18, blank=True, null=True, verbose_name="CNPJ")
     telefone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
     endereco = models.TextField()
@@ -99,3 +101,7 @@ class ChecklistItem(models.Model):
     fase = models.CharField(max_length=10) # 'entrada' ou 'saida'
     status = models.CharField(max_length=5, default='p') 
 
+class OSFoto(models.Model):
+    os = models.ForeignKey(OrdemServico, related_name='fotos', on_delete=models.CASCADE)
+    foto = models.ImageField(upload_to='os/inspecao/')
+    data_upload = models.DateTimeField(auto_now_add=True)

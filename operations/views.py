@@ -4,6 +4,9 @@ from workshops.utils import get_oficina
 from .models import Cliente, Veiculo, OrdemServico, ChecklistItem
 from .forms import ClienteForm, VeiculoForm, ChecklistOSForm
 from django.http import JsonResponse
+from .models import Cliente, Veiculo, OrdemServico, ChecklistItem, OSFoto
+from .forms import ClienteForm, VeiculoForm, ChecklistOSForm, OSFotoForm
+
 
 # --- 1. GESTÃO DE CLIENTES ---
 @login_required
@@ -124,12 +127,15 @@ def abrir_os(request):
 
     if request.method == 'POST':
         form = ChecklistOSForm(request.POST, oficina=oficina)
+        arquivos = request.FILES.getlist('fotos_inspecao') 
         if form.is_valid():
             os_nova = form.save(commit=False)
             os_nova.oficina = oficina
             os_nova.save()
             os_nova.mapa_avarias_base64 = request.POST.get('mapa_avarias_base64')
             os_nova.assinatura_cliente_base64 = request.POST.get('assinatura_cliente_base64')
+            for f in arquivos:
+                   OSFoto.objects.create(os=os_nova, foto=f)
            
             # Grava o checklist marcado na tela
             for i, desc in enumerate(itens_entrada, start=1):
@@ -198,23 +204,29 @@ def detalhes_os(request, os_id):
 @login_required
 def editar_os(request, os_id):
     oficina = get_oficina(request)
+    # Busca a OS ou dá erro 404 se não for desta oficina
     os_obj = get_object_or_404(OrdemServico, id=os_id, oficina=oficina)
     
-    # Listas estáticas para caso algum item novo seja necessário (opcional)
     itens_entrada_nomes = ["Necessidade de Troca de Óleo", "Colocar água no limpador", "Limpar reservatório partida a frio", "Lavar o motor", "Trocar palhetas", "Lubrificar portas", "Regular freio de mão", "Trocar alguma lâmpada"]
     itens_saida_nomes = ["Executou as solicitações", "Checklist de revisão", "Limpeza de graxa", "Etiqueta de óleo", "Peças usadas", "Testou o veículo", "Calibrou pneus", "Apertou as rodas"]
 
     if request.method == 'POST':
-        form = ChecklistOSForm(request.POST, instance=os_obj, oficina=oficina)
+        # Passamos o 'instance=os_obj' para o Django saber que é uma ATUALIZAÇÃO e não um novo registro
+        form = ChecklistOSForm(request.POST, request.FILES, instance=os_obj, oficina=oficina)
+        
         if form.is_valid():
             os_editada = form.save(commit=False)
             os_editada.mapa_avarias_base64 = request.POST.get('mapa_avarias_base64')
             os_editada.assinatura_cliente_base64 = request.POST.get('assinatura_cliente_base64')
             os_editada.save()
 
-            # ATUALIZA OS ITENS DO CHECKLIST NA EDIÇÃO
+            # Salva novas fotos se houver
+            arquivos = request.FILES.getlist('fotos')
+            for f in arquivos:
+                OSFoto.objects.create(os=os_editada, foto=f)
+
+            # Atualiza os itens do checklist
             for item in os_obj.itens_checklist.all():
-                # Tenta pegar o valor enviado (item_123), se não houver, mantém o que está
                 novo_status = request.POST.get(f'item_{item.id}')
                 if novo_status:
                     item.status = novo_status
@@ -222,15 +234,15 @@ def editar_os(request, os_id):
 
             return redirect('operations:lista_os')
     else:
+        # Carrega o formulário com os dados existentes
         form = ChecklistOSForm(instance=os_obj, oficina=oficina)
 
     return render(request, 'operations/abrir_os.html', {
         'form': form,
-        'os': os_obj,
+        'os': os_obj, # MUITO IMPORTANTE: passar o objeto OS
         'oficina_logada': oficina,
         'itens_entrada': itens_entrada_nomes,
         'itens_saida': itens_saida_nomes,
-        'editando': True
     })
 
 @login_required
@@ -294,4 +306,17 @@ def imprimir_os(request, os_id):
         'itens_entrada': itens_entrada,
         'itens_saida': itens_saida,
         'oficina': oficina
+    })
+
+from .models import OSFoto
+
+@login_required
+def exibir_foto(request, foto_id):
+    oficina = get_oficina(request)
+    # Busca a foto garantindo que a OS pertença à oficina do usuário
+    foto_obj = get_object_or_404(OSFoto, id=foto_id, os__oficina=oficina)
+    
+    return render(request, 'operations/exibir_foto.html', {
+        'foto': foto_obj,
+        'oficina_logada': oficina
     })

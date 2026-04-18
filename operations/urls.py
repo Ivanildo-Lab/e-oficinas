@@ -19,5 +19,7 @@ urlpatterns = [
     path('os/<int:os_id>/', views.detalhes_os, name='detalhes_os'),
     path('os/editar/<int:os_id>/', views.editar_os, name='editar_os'),
     path('os/excluir/<int:os_id>/', views.excluir_os, name='excluir_os'),
-    path('os/imprimir/<int:os_id>/', views.imprimir_os, name='imprimir_os'),    path('api/veiculo/<int:veiculo_id>/', views.buscar_dados_veiculo, name='buscar_dados_veiculo'),
+    path('os/imprimir/<int:os_id>/', views.imprimir_os, name='imprimir_os'),  
+    path('api/veiculo/<int:veiculo_id>/', views.buscar_dados_veiculo, name='buscar_dados_veiculo'),
+    path('os/foto/<int:foto_id>/', views.exibir_foto, name='exibir_foto'),
 ]
