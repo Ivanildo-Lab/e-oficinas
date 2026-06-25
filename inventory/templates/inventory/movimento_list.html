@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}Movimentações de Estoque{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap gap-3">
+    <a href="{% url 'inventory:nova_movimentacao' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+        <i class="fa fa-plus"></i> Nova Movimentação
+    </a>
+    <a href="{% url 'inventory:lista_itens' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-500 text-white font-bold text-sm rounded-xl hover:bg-slate-600 transition">
+        <i class="fa fa-archive"></i> Voltar ao Estoque
+    </a>
+</div>
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-exchange mr-2 text-emerald-500"></i>Movimentações</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Item</th>
+                    <th>Tipo</th>
+                    <th class="text-center">Qtd</th>
+                    <th>Valor Unit.</th>
+                    <th>Fornecedor</th>
+                    <th>Setor Destino</th>
+                    <th>Observação</th>
+                    <th class="text-center" style="width: 120px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimento in movimentos %}
+                <tr>
+                    <td>{{ movimento.data|date:'d/m/Y' }}</td>
+                    <td class="font-semibold">{{ movimento.item.nome_item }}</td>
+                    <td>
+                        {% if movimento.tipo == 'entrada' %}
+                            <span class="tw-badge tw-badge-green">{{ movimento.get_tipo_display }}</span>
+                        {% else %}
+                            <span class="tw-badge tw-badge-red">{{ movimento.get_tipo_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">{{ movimento.quantidade }}</td>
+                    <td>R$ {{ movimento.valor_unitario }}</td>
+                    <td>
+                        {% if movimento.tipo == 'entrada' and movimento.fornecedor %}
+                            <span class="text-sm">{{ movimento.fornecedor.nome }}</span>
+                        {% else %}
+                            <span class="text-slate-300">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if movimento.tipo == 'saida' and movimento.setor_destino %}
+                            <span class="text-sm">{{ movimento.setor_destino.nome }}</span>
+                        {% else %}
+                            <span class="text-slate-300">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movimento.observacao|default:'-' }}</td>
+                    <td>
+                        <div class="tw-actions justify-center">
+                            <a href="{% url 'inventory:editar_movimentacao' movimento.pk %}" class="tw-btn-icon tw-btn-edit" title="Editar"><i class="fa fa-pencil"></i></a>
+                            <button onclick="confirmarExclusao('{% url 'inventory:excluir_movimentacao' movimento.pk %}', 'Movimentação: {{ movimento.item.nome_item }} ({{ movimento.get_tipo_display }})');" class="tw-btn-icon tw-btn-delete" title="Excluir"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhuma movimentação registrada.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

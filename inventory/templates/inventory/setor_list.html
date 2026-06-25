@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}Setores / Destinos{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap gap-3">
+    <a href="{% url 'inventory:novo_setor' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+        <i class="fa fa-plus"></i> Novo Setor
+    </a>
+    <a href="{% url 'inventory:lista_itens' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-500 text-white font-bold text-sm rounded-xl hover:bg-slate-600 transition">
+        <i class="fa fa-archive"></i> Voltar ao Estoque
+    </a>
+</div>
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-building-o mr-2 text-indigo-500"></i>Setores Cadastrados</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Nome do Setor</th>
+                    <th>Responsável</th>
+                    <th>Status</th>
+                    <th class="text-center" style="width: 120px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in setores %}
+                <tr>
+                    <td class="font-semibold">{{ s.nome }}</td>
+                    <td>{{ s.responsavel|default:'-' }}</td>
+                    <td>
+                        {% if s.ativo %}
+                            <span class="tw-badge tw-badge-green">Ativo</span>
+                        {% else %}
+                            <span class="tw-badge tw-badge-red">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="tw-actions justify-center">
+                            <a href="{% url 'inventory:editar_setor' s.pk %}" class="tw-btn-icon tw-btn-edit" title="Editar"><i class="fa fa-pencil"></i></a>
+                            <button onclick="confirmarExclusao('{% url 'inventory:excluir_setor' s.pk %}', '{{ s.nome }}');" class="tw-btn-icon tw-btn-delete" title="Excluir"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhum setor cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

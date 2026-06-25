@@ -15,8 +15,163 @@
     <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/skins/skin-blue.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
+    <!-- Tailwind CSS (produção: usar build local) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+
     <style>
-        /* Ajustes finos para o cabeçalho solicitado */
+        /* ===== Estilos dos Forms TW ===== */
+        .tw-form input[type="text"],
+        .tw-form input[type="number"],
+        .tw-form input[type="email"],
+        .tw-form input[type="tel"],
+        .tw-form input[type="password"],
+        .tw-form input[type="date"],
+        .tw-form input[type="time"],
+        .tw-form input[type="datetime-local"],
+        .tw-form select,
+        .tw-form textarea {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1e293b;
+            background: #f8fafc;
+            transition: all 0.2s;
+            outline: none;
+            -webkit-appearance: none;
+            line-height: 1.5;
+        }
+        .tw-form input:focus,
+        .tw-form select:focus,
+        .tw-form textarea:focus {
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        .tw-form input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: #6366f1;
+            border-radius: 0.375rem;
+        }
+        .tw-form label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            margin-left: 0.25rem;
+        }
+        .tw-form .error-msg {
+            color: #e11d48;
+            font-size: 0.875rem;
+            font-weight: 700;
+            margin-top: 0.375rem;
+            margin-left: 0.25rem;
+        }
+        .tw-form textarea {
+            min-height: 100px;
+        }
+
+        /* ===== Tables TW ===== */
+        .tw-card {
+            background: #fff;
+            border-radius: 1.5rem;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+        .tw-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .tw-card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+        }
+        .tw-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .tw-table thead th {
+            padding: 1rem 1.25rem;
+            font-size: 0.8125rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: left;
+            border-bottom: 1.5px solid #f1f5f9;
+            background: #fafbfc;
+        }
+        .tw-table tbody td {
+            padding: 1.125rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #334155;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+        }
+        .tw-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .tw-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .tw-table .tw-empty {
+            text-align: center;
+            padding: 3rem 1.25rem;
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        .tw-badge {
+            display: inline-block;
+            padding: 0.3rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+        .tw-badge-green { background: #dcfce7; color: #16a34a; }
+        .tw-badge-red { background: #fee2e2; color: #dc2626; }
+        .tw-badge-gray { background: #f1f5f9; color: #64748b; }
+        .tw-badge-blue { background: #dbeafe; color: #2563eb; }
+        .tw-btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.625rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.9375rem;
+        }
+        .tw-btn-icon:hover { opacity: 0.85; }
+        .tw-btn-edit { background: #fef3c7; color: #d97706; }
+        .tw-btn-delete { background: #fee2e2; color: #dc2626; }
+        .tw-actions { display: flex; gap: 0.375rem; }
+
+        /* ===== Ajustes AdminLTE ===== */
         .main-header .logo-lg { display: flex; align-items: center; justify-content: center; height: 50px; }
         .user-info-text { color: #fff; line-height: 50px; padding: 0 15px; float: left; font-size: 13px; }
         .logout-btn { color: #fff; line-height: 50px; padding: 0 15px; float: left; background: rgba(0,0,0,0.1); transition: 0.3s; }
@@ -96,7 +251,27 @@
                 <li class="{% if 'mecanicos' in request.path %}active{% endif %}">
                     <a href="{% url 'workshops:lista_mecanicos' %}"><i class="fa fa-wrench"></i> <span>Mecânicos</span></a>
                 </li>
-                <li><a href="#"><i class="fa fa-archive"></i> <span>Estoque de Peças</span></a></li>
+                <li class="{% if 'estoque' in request.path %}active{% endif %}">
+                    <a href="{% url 'inventory:lista_itens' %}"><i class="fa fa-archive"></i> <span>Estoque de Peças</span></a>
+                </li>
+                <li class="{% if 'grupos' in request.path %}active{% endif %}">
+                    <a href="{% url 'inventory:lista_grupos' %}"><i class="fa fa-sitemap"></i> <span>Grupos de Produtos</span></a>
+                </li>
+                <li class="{% if 'fornecedores' in request.path %}active{% endif %}">
+                    <a href="{% url 'inventory:lista_fornecedores' %}"><i class="fa fa-truck"></i> <span>Fornecedores</span></a>
+                </li>
+                <li class="{% if 'setores' in request.path %}active{% endif %}">
+                    <a href="{% url 'inventory:lista_setores' %}"><i class="fa fa-building-o"></i> <span>Setores / Destinos</span></a>
+                </li>
+                <li class="{% if 'estoque/relatorio' in request.path or 'relatorio' in request.path %}active{% endif %}">
+                    <a href="{% url 'inventory:relatorio_estoque' %}"><i class="fa fa-bar-chart"></i> <span>Relatório de Estoque</span></a>
+                </li>
+                <li class="{% if 'movimentacoes-produto' in request.path %}active{% endif %}">
+                    <a href="{% url 'inventory:relatorio_movimentacoes_produto' %}"><i class="fa fa-exchange"></i> <span>Mov. por Produto</span></a>
+                </li>
+                <li class="{% if 'sugestao-compras' in request.path %}active{% endif %}">
+                    <a href="{% url 'inventory:sugestao_compras' %}"><i class="fa fa-shopping-cart"></i> <span>Sugestão de Compras</span></a>
+                </li>
                 <li><a href="#"><i class="fa fa-calendar"></i> <span>Agenda</span></a></li>
             </ul>
         </section>

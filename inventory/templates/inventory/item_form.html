@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-10">
+    <div class="flex items-center gap-4 mb-10 border-b pb-6">
+        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center">
+            <i class="fa fa-archive text-xl"></i>
+        </div>
+        <div>
+            <h3 class="font-black text-slate-800 uppercase text-base tracking-tighter">{{ titulo }}</h3>
+            <p class="text-sm text-slate-400 font-medium">Preencha os dados do produto para salvar</p>
+        </div>
+    </div>
+
+    <form method="post" class="tw-form space-y-6">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label>{{ form.nome_item.label }}</label>
+                {{ form.nome_item }}
+                {% if form.nome_item.errors %}<p class="error-msg">{{ form.nome_item.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label>{{ form.marca.label }}</label>
+                {{ form.marca }}
+                {% if form.marca.errors %}<p class="error-msg">{{ form.marca.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label>{{ form.referencia.label }}</label>
+                {{ form.referencia }}
+                {% if form.referencia.errors %}<p class="error-msg">{{ form.referencia.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label>{{ form.grupo.label }}</label>
+                {{ form.grupo }}
+                {% if form.grupo.errors %}<p class="error-msg">{{ form.grupo.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div>
+            <label>{{ form.descricao.label }}</label>
+            {{ form.descricao }}
+            {% if form.descricao.errors %}<p class="error-msg">{{ form.descricao.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label>{{ form.quantidade.label }}</label>
+                {{ form.quantidade }}
+                {% if form.quantidade.errors %}<p class="error-msg">{{ form.quantidade.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label>{{ form.preco_unitario.label }}</label>
+                {{ form.preco_unitario }}
+                {% if form.preco_unitario.errors %}<p class="error-msg">{{ form.preco_unitario.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label>{{ form.minimo_ideal.label }}</label>
+                {{ form.minimo_ideal }}
+                {% if form.minimo_ideal.errors %}<p class="error-msg">{{ form.minimo_ideal.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="flex gap-4 pt-8 border-t border-slate-50">
+            <a href="{% url 'inventory:lista_itens' %}" class="flex-1 text-center py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 transition">
+                CANCELAR
+            </a>
+            <button type="submit" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition">
+                SALVAR DADOS
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

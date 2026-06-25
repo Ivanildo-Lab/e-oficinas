@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}Relatório de Estoque{% endblock %}
+{% block content %}
+
+<!-- FILTROS -->
+<div class="tw-card mb-6">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-filter mr-2 text-blue-500"></i>Filtros</h3>
+    </div>
+    <div class="p-6">
+        <form method="get" class="tw-form">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="item">Item</label>
+                    <select name="item" id="item">
+                        <option value="">Todos</option>
+                        {% for item in itens %}
+                        <option value="{{ item.id }}" {% if filtro_item == item.id|stringformat:"s" %}selected{% endif %}>{{ item.nome_item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="tipo">Tipo</label>
+                    <select name="tipo" id="tipo">
+                        <option value="">Todos</option>
+                        <option value="entrada" {% if filtro_tipo == 'entrada' %}selected{% endif %}>Entradas</option>
+                        <option value="saida" {% if filtro_tipo == 'saida' %}selected{% endif %}>Saídas</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="fornecedor">Fornecedor</label>
+                    <select name="fornecedor" id="fornecedor">
+                        <option value="">Todos</option>
+                        {% for f in lista_fornecedores %}
+                        <option value="{{ f.id }}" {% if filtro_fornecedor == f.id|stringformat:"s" %}selected{% endif %}>{{ f.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="setor">Setor Destino</label>
+                    <select name="setor" id="setor">
+                        <option value="">Todos</option>
+                        {% for s in lista_setores %}
+                        <option value="{{ s.id }}" {% if filtro_setor == s.id|stringformat:"s" %}selected{% endif %}>{{ s.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mt-4">
+                <div>
+                    <label for="data_inicio">Data Início</label>
+                    <input type="date" name="data_inicio" id="data_inicio" value="{{ filtro_data_inicio }}">
+                </div>
+                <div>
+                    <label for="data_fim">Data Fim</label>
+                    <input type="date" name="data_fim" id="data_fim" value="{{ filtro_data_fim }}">
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition">
+                        <i class="fa fa-search mr-1"></i> Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+    <div class="tw-card p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+                <i class="fa fa-plus text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Entradas</p>
+                <p class="text-2xl font-black text-slate-800">{{ total_entradas }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="tw-card p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center">
+                <i class="fa fa-minus text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Saídas</p>
+                <p class="text-2xl font-black text-slate-800">{{ total_saidas }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="tw-card p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
+                <i class="fa fa-money text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Valor em Estoque</p>
+                <p class="text-2xl font-black text-slate-800">R$ {{ total_estoque_valor|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if sugestoes %}
+<div class="tw-card mb-6">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-lightbulb-o mr-2 text-amber-500"></i>Sugestões de Compra</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Marca</th>
+                    <th>Ref.</th>
+                    <th>Grupo</th>
+                    <th class="text-center">Atual</th>
+                    <th class="text-center">Mínimo</th>
+                    <th class="text-center">Sugerido</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sugestoes %}
+                <tr class="bg-amber-50">
+                    <td class="font-semibold">{{ item.nome_item }}</td>
+                    <td>{{ item.marca|default:'-' }}</td>
+                    <td>{{ item.referencia|default:'-' }}</td>
+                    <td>{{ item.grupo|default:'-' }}</td>
+                    <td class="text-center"><span class="tw-badge tw-badge-red">{{ item.quantidade }}</span></td>
+                    <td class="text-center">{{ item.minimo_ideal }}</td>
+                    <td class="text-center"><span class="tw-badge tw-badge-blue">{{ item.quantidade_sugerida }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-list mr-2 text-slate-400"></i>Movimentações Filtradas</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Item</th>
+                    <th>Tipo</th>
+                    <th class="text-center">Qtd</th>
+                    <th>Valor Unit.</th>
+                    <th>Valor Total</th>
+                    <th>Fornecedor</th>
+                    <th>Setor Destino</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimento in movimentos %}
+                <tr>
+                    <td>{{ movimento.data|date:'d/m/Y H:i' }}</td>
+                    <td class="font-semibold">{{ movimento.item.nome_item }}</td>
+                    <td>
+                        {% if movimento.tipo == 'entrada' %}
+                            <span class="tw-badge tw-badge-green">{{ movimento.get_tipo_display }}</span>
+                        {% else %}
+                            <span class="tw-badge tw-badge-red">{{ movimento.get_tipo_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">{{ movimento.quantidade }}</td>
+                    <td>R$ {{ movimento.valor_unitario }}</td>
+                    <td class="font-semibold">R$ {{ movimento.valor_total }}</td>
+                    <td>
+                        {% if movimento.tipo == 'entrada' and movimento.fornecedor %}
+                            {{ movimento.fornecedor.nome }}
+                        {% else %}
+                            <span class="text-slate-300">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if movimento.tipo == 'saida' and movimento.setor_destino %}
+                            {{ movimento.setor_destino.nome }}
+                        {% else %}
+                            <span class="text-slate-300">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhuma movimentação encontrada.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

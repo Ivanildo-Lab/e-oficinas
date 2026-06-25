@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}Itens em Estoque{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap gap-3">
+    <a href="{% url 'inventory:novo_item' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+        <i class="fa fa-plus"></i> Novo Item
+    </a>
+    <a href="{% url 'inventory:lista_movimentos' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white font-bold text-sm rounded-xl hover:bg-blue-600 transition">
+        <i class="fa fa-exchange"></i> Movimentações
+    </a>
+    <a href="{% url 'inventory:relatorio_estoque' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-500 text-white font-bold text-sm rounded-xl hover:bg-slate-600 transition">
+        <i class="fa fa-bar-chart"></i> Relatório
+    </a>
+</div>
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-archive mr-2 text-amber-500"></i>Itens</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Marca</th>
+                    <th>Ref.</th>
+                    <th>Grupo</th>
+                    <th class="text-center">Qtd</th>
+                    <th>Preço Unit.</th>
+                    <th>Valor Total</th>
+                    <th class="text-center">Mínimo</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr class="{% if item.quantidade <= item.minimo_ideal %}bg-red-50{% endif %}">
+                    <td class="font-semibold">{{ item.nome_item }}</td>
+                    <td>{{ item.marca|default:'-' }}</td>
+                    <td>{{ item.referencia|default:'-' }}</td>
+                    <td>{{ item.grupo|default:'-' }}</td>
+                    <td class="text-center">
+                        {% if item.quantidade <= item.minimo_ideal %}
+                            <span class="tw-badge tw-badge-red">{{ item.quantidade }}</span>
+                        {% else %}
+                            <span class="tw-badge tw-badge-green">{{ item.quantidade }}</span>
+                        {% endif %}
+                    </td>
+                    <td>R$ {{ item.preco_unitario }}</td>
+                    <td class="font-semibold">R$ {{ item.valor_total }}</td>
+                    <td class="text-center">{{ item.minimo_ideal }}</td>
+                    <td>
+                        <div class="tw-actions justify-center">
+                            <a href="{% url 'inventory:editar_item' item.pk %}" class="tw-btn-icon tw-btn-edit" title="Editar"><i class="fa fa-pencil"></i></a>
+                            <button onclick="confirmarExclusao('{% url 'inventory:excluir_item' item.pk %}', '{{ item.nome_item }}');" class="tw-btn-icon tw-btn-delete" title="Excluir"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhum item cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

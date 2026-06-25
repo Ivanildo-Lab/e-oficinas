@@ -1,81 +1,59 @@
 {% extends 'base.html' %}
-
 {% block titulo_pagina %}Gestão de Clientes{% endblock %}
-
+{% block titulo_cabecalho %}Clientes e Veículos{% endblock %}
 {% block content %}
-<div class="box box-primary">
-    <div class="box-header with-border">
-        <h3 class="box-title"><i class="fa fa-users"></i> Gestão de Clientes e Frotas</h3>
-        <div class="box-tools">
-            <a href="{% url 'operations:novo_cliente' %}" class="btn btn-sm btn-success">
-                <i class="fa fa-plus"></i> Novo Cliente
-            </a>
-        </div>
+<div class="mb-6 flex flex-wrap gap-3">
+    <a href="{% url 'operations:novo_cliente' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+        <i class="fa fa-plus"></i> Novo Cliente
+    </a>
+</div>
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-users mr-2 text-sky-500"></i>Clientes e Frotas</h3>
     </div>
-    <div class="box-body table-responsive no-padding">
-        <table class="table table-hover">
-            <thead class="bg-gray">
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
                 <tr>
-                    <th style="width: 30%">Cliente / Contato</th>
-                    <th style="width: 50%">Veículos Cadastrados</th>
-                    <th class="text-center" style="width: 20%">Ações Cliente</th>
+                    <th style="width: 25%">Cliente</th>
+                    <th style="width: 20%">Contato</th>
+                    <th style="width: 40%">Veículos</th>
+                    <th class="text-center" style="width: 15%">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for cliente in clientes %}
-                <tr style="border-top: 2px solid #eee;">
+                <tr>
+                    <td class="font-semibold">{{ cliente.nome|upper }}</td>
                     <td>
-                        <strong style="font-size: 1.1em; color: #333;">{{ cliente.nome|upper }}</strong><br>
-                        <small class="text-muted"><i class="fa fa-phone text-green"></i> {{ cliente.telefone }}</small>
+                        <span class="text-sm text-slate-500"><i class="fa fa-phone text-emerald-500 mr-1"></i>{{ cliente.telefone }}</span>
                     </td>
                     <td>
                         {% for v in cliente.veiculo_set.all %}
-                        <div class="label label-default" style="display:inline-block; margin-bottom: 5px; padding: 6px; font-size: 0.9em; border: 1px solid #ccc; color: #444;">
-                            <i class="fa fa-car text-blue"></i> {{ v.placa }} - {{ v.modelo }}
-                            
-                            <!-- Botão Editar Veículo -->
-                            <a href="{% url 'operations:editar_veiculo' v.pk %}" class="text-orange" style="margin-left: 8px;" title="Editar Veículo">
-                                <i class="fa fa-pencil"></i>
-                            </a>
-                            
-                            <!-- Botão Excluir Veículo (Chama o Modal) -->
-                            <a href="javascript:void(0)" 
-                               onclick="confirmarExclusao('{% url 'operations:excluir_veiculo' v.pk %}', 'VEÍCULO: {{ v.placa }} - {{ v.modelo }}')" 
-                               class="text-red" style="margin-left: 5px;" title="Excluir Veículo">
-                                <i class="fa fa-trash"></i>
-                            </a>
+                        <div class="inline-flex items-center gap-2 bg-slate-100 text-slate-700 text-sm font-medium px-3 py-1.5 rounded-lg mr-2 mb-2">
+                            <i class="fa fa-car text-blue-500"></i>
+                            <span>{{ v.placa }} - {{ v.modelo }}</span>
+                            <a href="{% url 'operations:editar_veiculo' v.pk %}" class="text-amber-500 hover:text-amber-600 ml-1" title="Editar"><i class="fa fa-pencil"></i></a>
+                            <a href="javascript:void(0)" onclick="confirmarExclusao('{% url 'operations:excluir_veiculo' v.pk %}', 'VEÍCULO: {{ v.placa }} - {{ v.modelo }}')" class="text-red-500 hover:text-red-600" title="Excluir"><i class="fa fa-trash"></i></a>
                         </div>
                         {% empty %}
-                        <span class="text-muted small italic">Nenhum veículo vinculado.</span>
+                        <span class="text-sm text-slate-400 italic">Nenhum veículo vinculado.</span>
                         {% endfor %}
                         <br>
-                        <a href="{% url 'operations:novo_veiculo' %}?cliente={{ cliente.id }}" class="btn btn-xs btn-default text-blue" style="margin-top: 5px; border-style: dashed;">
+                        <a href="{% url 'operations:novo_veiculo' %}?cliente={{ cliente.id }}" class="inline-flex items-center gap-1 text-xs font-bold text-blue-500 hover:text-blue-600 mt-1 border border-dashed border-blue-300 rounded-lg px-3 py-1">
                             <i class="fa fa-plus"></i> Adicionar Veículo
                         </a>
                     </td>
-                    <td class="text-center" style="vertical-align: middle;">
-                        <div class="btn-group">
-                            <!-- Botão Editar Cliente -->
-                            <a href="{% url 'operations:editar_cliente' cliente.pk %}" class="btn btn-sm btn-default" title="Editar Cliente">
-                                <i class="fa fa-pencil text-orange"></i>
-                            </a>
-                            
-                            <!-- Botão Excluir Cliente (Chama o Modal) -->
-                            <button type="button" 
-                                    onclick="confirmarExclusao('{% url 'operations:excluir_cliente' cliente.pk %}', 'CLIENTE: {{ cliente.nome|upper|addslashes }}')" 
-                                    class="btn btn-sm btn-default" title="Excluir Cliente">
-                                <i class="fa fa-trash text-red"></i>
-                            </button>
+                    <td>
+                        <div class="tw-actions justify-center">
+                            <a href="{% url 'operations:editar_cliente' cliente.pk %}" class="tw-btn-icon tw-btn-edit" title="Editar Cliente"><i class="fa fa-pencil"></i></a>
+                            <button onclick="confirmarExclusao('{% url 'operations:excluir_cliente' cliente.pk %}', 'CLIENTE: {{ cliente.nome|upper|addslashes }}')" class="tw-btn-icon tw-btn-delete" title="Excluir Cliente"><i class="fa fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
-                    <td colspan="3" class="text-center" style="padding: 30px;">
-                        <i class="fa fa-info-circle text-blue" style="font-size: 20px;"></i><br>
-                        <span class="text-muted">Nenhum cliente cadastrado nesta oficina.</span>
-                    </td>
-                </tr>
+                <tr><td colspan="4" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhum cliente cadastrado nesta oficina.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

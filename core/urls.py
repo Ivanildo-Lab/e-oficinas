@@ -10,6 +10,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', include('workshops.urls')), 
     path('operacoes/', include('operations.urls')),
+    path('estoque/', include('inventory.urls')),
 ]
 
 # ADICIONE ESTA LINHA NO FINAL:

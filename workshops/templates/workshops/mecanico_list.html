@@ -1,35 +1,47 @@
 {% extends 'base.html' %}
+{% block titulo_cabecalho %}Mecânicos{% endblock %}
 {% block content %}
-<div class="box box-primary">
-    <div class="box-header with-border">
-        <h3 class="box-title"><i class="fa fa-wrench"></i> Equipe de Mecânicos</h3>
-        <div class="box-tools">
-            <a href="{% url 'workshops:novo_mecanico' %}" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> Novo Mecânico</a>
-        </div>
+<div class="mb-6">
+    <a href="{% url 'workshops:novo_mecanico' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+        <i class="fa fa-plus"></i> Novo Mecânico
+    </a>
+</div>
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-wrench mr-2 text-rose-500"></i>Equipe de Mecânicos</h3>
     </div>
-    <div class="box-body no-padding">
-        <table class="table table-hover">
-            <tr>
-                <th>Nome</th>
-                <th>Status</th>
-                <th class="text-center">Ações</th>
-            </tr>
-            {% for m in mecanicos %}
-            <tr>
-                <td>{{ m.nome }}</td>
-                <td>
-                    {% if m.ativo %}
-                        <span class="label label-success">Ativo</span>
-                    {% else %}
-                        <span class="label label-danger">Inativo</span>
-                    {% endif %}
-                </td>
-                <td class="text-center">
-                    <a href="{% url 'workshops:editar_mecanico' m.pk %}" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a>
-                    <button class="btn btn-xs btn-danger" onclick="confirmarExclusao('{% url 'workshops:excluir_mecanico' m.pk %}', '{{ m.nome }}')"><i class="fa fa-trash"></i></button>
-                </td>
-            </tr>
-            {% endfor %}
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th class="text-center" style="width: 120px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mecanicos %}
+                <tr>
+                    <td class="font-semibold">{{ m.nome }}</td>
+                    <td>
+                        {% if m.ativo %}
+                            <span class="tw-badge tw-badge-green">Ativo</span>
+                        {% else %}
+                            <span class="tw-badge tw-badge-red">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="tw-actions justify-center">
+                            <a href="{% url 'workshops:editar_mecanico' m.pk %}" class="tw-btn-icon tw-btn-edit" title="Editar"><i class="fa fa-pencil"></i></a>
+                            <button class="tw-btn-icon tw-btn-delete" onclick="confirmarExclusao('{% url 'workshops:excluir_mecanico' m.pk %}', '{{ m.nome }}')" title="Excluir"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhum mecânico cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>

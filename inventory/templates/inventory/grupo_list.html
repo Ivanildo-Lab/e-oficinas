@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}Grupos de Produtos{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap gap-3">
+    <a href="{% url 'inventory:novo_grupo' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+        <i class="fa fa-plus"></i> Novo Grupo
+    </a>
+    <a href="{% url 'inventory:lista_itens' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-500 text-white font-bold text-sm rounded-xl hover:bg-slate-600 transition">
+        <i class="fa fa-archive"></i> Voltar ao Estoque
+    </a>
+</div>
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-sitemap mr-2 text-purple-500"></i>Grupos</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Nome do Grupo</th>
+                    <th class="text-center" style="width: 120px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for grupo in grupos %}
+                <tr>
+                    <td class="font-semibold">{{ grupo.nome }}</td>
+                    <td>
+                        <div class="tw-actions justify-center">
+                            <a href="{% url 'inventory:editar_grupo' grupo.pk %}" class="tw-btn-icon tw-btn-edit" title="Editar"><i class="fa fa-pencil"></i></a>
+                            <button onclick="confirmarExclusao('{% url 'inventory:excluir_grupo' grupo.pk %}', '{{ grupo.nome }}');" class="tw-btn-icon tw-btn-delete" title="Excluir"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="2" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhum grupo cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

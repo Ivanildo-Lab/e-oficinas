@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}{{ titulo }}{% endblock %}
+{% block content %}
+<style>
+    .autocomplete-list {
+        position: absolute;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.75rem;
+        border-top: none;
+        max-height: 240px;
+        overflow-y: auto;
+        width: 100%;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+    }
+    .autocomplete-list.show { display: block; }
+    .autocomplete-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.875rem;
+        color: #334155;
+        transition: background 0.15s;
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover { background-color: #f1f5f9; }
+    .autocomplete-container { position: relative; }
+    .field-entrada, .field-saida { display: none; }
+    .field-entrada.ativo, .field-saida.ativo { display: block; }
+</style>
+
+<div class="max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-10">
+    <div class="flex items-center gap-4 mb-10 border-b pb-6">
+        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+            <i class="fa fa-exchange text-xl"></i>
+        </div>
+        <div>
+            <h3 class="font-black text-slate-800 uppercase text-base tracking-tighter">{{ titulo }}</h3>
+            <p class="text-sm text-slate-400 font-medium">Registre entrada ou saída de itens do estoque</p>
+        </div>
+    </div>
+
+    <form method="post" id="movimento-form" class="tw-form space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+            {% for error in form.non_field_errors %}
+            <p class="text-red-600 font-semibold text-sm">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div>
+            <label for="id_item_search">Produto</label>
+            <div class="autocomplete-container">
+                <input type="text" id="id_item_search" name="item_search" autocomplete="off"
+                       placeholder="Digite parte do nome ou referência"
+                       value="{% if form.instance.pk %}{{ form.instance.item.nome_item }} ({{ form.instance.item.referencia|default:'sem ref' }}) - {{ form.instance.item.marca|default:'sem marca' }}{% endif %}"
+                       required>
+                <div id="autocomplete-list" class="autocomplete-list"></div>
+            </div>
+            {{ form.item }}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label>{{ form.data.label }}</label>
+                {{ form.data }}
+                {% if form.data.errors %}<p class="error-msg">{{ form.data.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label>{{ form.tipo.label }}</label>
+                {{ form.tipo }}
+                {% if form.tipo.errors %}<p class="error-msg">{{ form.tipo.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label>{{ form.quantidade.label }}</label>
+                {{ form.quantidade }}
+                {% if form.quantidade.errors %}<p class="error-msg">{{ form.quantidade.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label>{{ form.valor_unitario.label }}</label>
+                {{ form.valor_unitario }}
+                {% if form.valor_unitario.errors %}<p class="error-msg">{{ form.valor_unitario.errors.0 }}</p>{% endif %}
+            </div>
+            <div></div>
+        </div>
+
+        <!-- CAMPO FORNECEDOR (ENTRADA) -->
+        <div id="campo-origem" class="field-entrada">
+            <label for="id_fornecedor_search">{{ form.fornecedor.label }}</label>
+            <div class="autocomplete-container">
+                <input type="text" id="id_fornecedor_search" name="fornecedor_search" autocomplete="off"
+                       placeholder="Digite parte do nome do fornecedor"
+                       value="{% if form.instance.pk and form.instance.fornecedor %}{{ form.instance.fornecedor.nome }} - {{ form.instance.fornecedor.telefone|default:'s/ tel' }}{% endif %}">
+                <div id="autocomplete-fornecedor-list" class="autocomplete-list"></div>
+            </div>
+            {{ form.fornecedor }}
+            {% if form.fornecedor.errors %}<p class="error-msg">{{ form.fornecedor.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- CAMPO SETOR DESTINO (SAÍDA) -->
+        <div id="campo-destino" class="field-saida">
+            <label for="id_setor_search">{{ form.setor_destino.label }}</label>
+            <div class="autocomplete-container">
+                <input type="text" id="id_setor_search" name="setor_search" autocomplete="off"
+                       placeholder="Digite parte do nome do setor"
+                       value="{% if form.instance.pk and form.instance.setor_destino %}{{ form.instance.setor_destino.nome }} - {{ form.instance.setor_destino.responsavel|default:'s/ resp' }}{% endif %}">
+                <div id="autocomplete-setor-list" class="autocomplete-list"></div>
+            </div>
+            {{ form.setor_destino }}
+            {% if form.setor_destino.errors %}<p class="error-msg">{{ form.setor_destino.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label>{{ form.observacao.label }}</label>
+            {{ form.observacao }}
+            {% if form.observacao.errors %}<p class="error-msg">{{ form.observacao.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="flex gap-4 pt-8 border-t border-slate-50">
+            <a href="{% url 'inventory:lista_movimentos' %}" class="flex-1 text-center py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 transition">
+                CANCELAR
+            </a>
+            <button type="submit" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition">
+                SALVAR DADOS
+            </button>
+        </div>
+    </form>
+
+    <script>
+        // === Toggle dinâmico: Fornecedor (entrada) / Setor Destino (saída) ===
+        const selectTipo = document.getElementById('id_tipo');
+        const campoOrigem = document.getElementById('campo-origem');
+        const campoDestino = document.getElementById('campo-destino');
+
+        function toggleCampos() {
+            const valor = selectTipo.value;
+            campoOrigem.classList.remove('ativo');
+            campoDestino.classList.remove('ativo');
+            if (valor === 'entrada') {
+                campoOrigem.classList.add('ativo');
+            } else if (valor === 'saida') {
+                campoDestino.classList.add('ativo');
+            }
+        }
+
+        selectTipo.addEventListener('change', toggleCampos);
+        toggleCampos();
+
+        // === Autocomplete genérico ===
+        function setupAutocomplete(inputId, listId, hiddenInputId, url) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const hiddenInput = document.getElementById(hiddenInputId);
+
+            input.addEventListener('input', async function() {
+                const query = this.value.trim();
+                if (query.length < 1) {
+                    list.classList.remove('show');
+                    return;
+                }
+                try {
+                    const response = await fetch(`${url}?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+
+                    if (data.length === 0) {
+                        list.innerHTML = '<div class="autocomplete-item" style="color:#94a3b8">Nenhum resultado encontrado</div>';
+                        list.classList.add('show');
+                        return;
+                    }
+
+                    list.innerHTML = '';
+                    data.forEach(function(item) {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        div.textContent = item.label;
+                        div.onclick = function() {
+                            input.value = item.label;
+                            hiddenInput.value = item.id;
+                            list.classList.remove('show');
+                        };
+                        list.appendChild(div);
+                    });
+                    list.classList.add('show');
+                } catch (error) {
+                    console.error('Erro na busca:', error);
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target !== input && e.target !== list) {
+                    list.classList.remove('show');
+                }
+            });
+        }
+
+        // === Autocomplete de produtos ===
+        setupAutocomplete('id_item_search', 'autocomplete-list', 'id_item', "{% url 'inventory:buscar_itens' %}");
+
+        // === Autocomplete de fornecedores ===
+        setupAutocomplete('id_fornecedor_search', 'autocomplete-fornecedor-list', 'id_fornecedor', "{% url 'inventory:buscar_fornecedores' %}");
+
+        // === Autocomplete de setores ===
+        setupAutocomplete('id_setor_search', 'autocomplete-setor-list', 'id_setor_destino', "{% url 'inventory:buscar_setores' %}");
+
+        // === Validação do formulário ===
+        document.getElementById('movimento-form').addEventListener('submit', function(e) {
+            const hiddenItem = document.getElementById('id_item');
+            if (!hiddenItem.value) {
+                e.preventDefault();
+                alert('Por favor, selecione um produto válido da lista de sugestões.');
+                document.getElementById('id_item_search').focus();
+                return false;
+            }
+        });
+    </script>
+</div>
+{% endblock %}

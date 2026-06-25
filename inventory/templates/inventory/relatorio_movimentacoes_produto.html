@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}Movimentações por Produto{% endblock %}
+{% block content %}
+
+<!-- FILTROS -->
+<div class="tw-card mb-6">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-filter mr-2 text-blue-500"></i>Filtros</h3>
+    </div>
+    <div class="p-6">
+        <form method="get" class="tw-form">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div class="md:col-span-1">
+                    <label for="item">Produto</label>
+                    <select name="item" id="item">
+                        <option value="">Selecione um produto</option>
+                        {% for item in itens %}
+                        <option value="{{ item.id }}" {% if filtro_item == item.id|stringformat:"s" %}selected{% endif %}>{{ item.nome_item }} ({{ item.referencia|default:'sem ref' }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="data_inicio">Data Início</label>
+                    <input type="date" name="data_inicio" id="data_inicio" value="{{ filtro_data_inicio }}">
+                </div>
+                <div>
+                    <label for="data_fim">Data Fim</label>
+                    <input type="date" name="data_fim" id="data_fim" value="{{ filtro_data_fim }}">
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition">
+                    <i class="fa fa-search mr-1"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if item_selecionado %}
+<!-- RESUMO DO PRODUTO -->
+<div class="tw-card mb-6">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-cube mr-2 text-blue-500"></i>Resumo do Produto</h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <p class="text-sm text-slate-400 font-bold uppercase mb-1">Produto</p>
+                <p class="text-lg font-black text-slate-800">{{ item_selecionado.nome_item }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-400 font-bold uppercase mb-1">Referência</p>
+                <p class="text-lg font-black text-slate-800">{{ item_selecionado.referencia|default:'Sem referência' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-400 font-bold uppercase mb-1">Marca</p>
+                <p class="text-lg font-black text-slate-800">{{ item_selecionado.marca|default:'Sem marca' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-slate-400 font-bold uppercase mb-1">Grupo</p>
+                <p class="text-lg font-black text-slate-800">{{ item_selecionado.grupo|default:'Sem grupo' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
+    <div class="tw-card p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+                <i class="fa fa-plus text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Entradas (Qtd)</p>
+                <p class="text-2xl font-black text-slate-800">{{ total_entradas_qtd }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="tw-card p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+                <i class="fa fa-money text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Entradas (R$)</p>
+                <p class="text-2xl font-black text-slate-800">R$ {{ total_entradas_valor|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="tw-card p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center">
+                <i class="fa fa-minus text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Saídas (Qtd)</p>
+                <p class="text-2xl font-black text-slate-800">{{ total_saidas_qtd }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="tw-card p-6">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center">
+                <i class="fa fa-money text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Saídas (R$)</p>
+                <p class="text-2xl font-black text-slate-800">R$ {{ total_saidas_valor|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HISTÓRICO -->
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-history mr-2 text-slate-400"></i>Histórico de Movimentações</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="tw-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th class="text-center">Qtd</th>
+                    <th>Valor Unit.</th>
+                    <th>Valor Total</th>
+                    <th>Fornecedor</th>
+                    <th>Setor Destino</th>
+                    <th>Observação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimento in movimentos %}
+                <tr>
+                    <td>{{ movimento.data|date:'d/m/Y' }}</td>
+                    <td>
+                        {% if movimento.tipo == 'entrada' %}
+                            <span class="tw-badge tw-badge-green">{{ movimento.get_tipo_display }}</span>
+                        {% else %}
+                            <span class="tw-badge tw-badge-red">{{ movimento.get_tipo_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">{{ movimento.quantidade }}</td>
+                    <td>R$ {{ movimento.valor_unitario }}</td>
+                    <td class="font-semibold">R$ {{ movimento.valor_total }}</td>
+                    <td>
+                        {% if movimento.tipo == 'entrada' and movimento.fornecedor %}
+                            {{ movimento.fornecedor.nome }}
+                        {% else %}
+                            <span class="text-slate-300">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if movimento.tipo == 'saida' and movimento.setor_destino %}
+                            {{ movimento.setor_destino.nome }}
+                        {% else %}
+                            <span class="text-slate-300">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movimento.observacao|default:'-' }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhuma movimentação encontrada para este produto.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% elif filtro_item %}
+<div class="tw-card">
+    <div class="p-12 text-center">
+        <i class="fa fa-exclamation-triangle text-4xl text-amber-400 mb-4"></i>
+        <p class="text-slate-500 font-medium">Produto não encontrado.</p>
+    </div>
+</div>
+{% else %}
+<div class="tw-card">
+    <div class="p-12 text-center">
+        <i class="fa fa-cube text-4xl text-slate-300 mb-4"></i>
+        <p class="text-slate-400 font-medium">Selecione um produto para ver suas movimentações.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

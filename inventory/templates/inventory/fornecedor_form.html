@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block titulo_pagina %}Estoque{% endblock %}
+{% block titulo_cabecalho %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-10">
+    <div class="flex items-center gap-4 mb-10 border-b pb-6">
+        <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center">
+            <i class="fa fa-truck text-xl"></i>
+        </div>
+        <div>
+            <h3 class="font-black text-slate-800 uppercase text-base tracking-tighter">{{ titulo }}</h3>
+            <p class="text-sm text-slate-400 font-medium">Preencha os dados do fornecedor para salvar</p>
+        </div>
+    </div>
+
+    <form method="post" class="tw-form space-y-6">
+        {% csrf_token %}
+
+        <div>
+            <label>{{ form.nome.label }}</label>
+            {{ form.nome }}
+            {% if form.nome.errors %}<p class="error-msg">{{ form.nome.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label>{{ form.telefone.label }}</label>
+                {{ form.telefone }}
+                {% if form.telefone.errors %}<p class="error-msg">{{ form.telefone.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label>{{ form.email.label }}</label>
+                {{ form.email }}
+                {% if form.email.errors %}<p class="error-msg">{{ form.email.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label>{{ form.contato.label }}</label>
+                {{ form.contato }}
+                {% if form.contato.errors %}<p class="error-msg">{{ form.contato.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="flex items-end pb-2">
+                <div class="flex items-center gap-3">
+                    {{ form.ativo }}
+                    <label for="id_ativo" class="!text-sm !font-bold !text-slate-500 !uppercase !tracking-normal !mb-0">Fornecedor Ativo</label>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label>{{ form.observacao.label }}</label>
+            {{ form.observacao }}
+            {% if form.observacao.errors %}<p class="error-msg">{{ form.observacao.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="flex gap-4 pt-8 border-t border-slate-50">
+            <a href="{% url 'inventory:lista_fornecedores' %}" class="flex-1 text-center py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 transition">
+                CANCELAR
+            </a>
+            <button type="submit" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition">
+                SALVAR DADOS
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

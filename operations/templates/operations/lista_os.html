@@ -1,58 +1,49 @@
 {% extends 'base.html' %}
-
 {% block titulo_pagina %}Lista de OS{% endblock %}
 {% block titulo_cabecalho %}Ordens de Serviço{% endblock %}
-
 {% block content %}
-<div class="box box-primary">
-    <div class="box-header with-border">
-        <h3 class="box-title">Registros da Oficina</h3>
-        <div class="box-tools">
-            <a href="{% url 'operations:abrir_os' %}" class="btn btn-sm btn-success">
-                <i class="fa fa-plus"></i> Nova OS
-            </a>
-        </div>
+<div class="mb-6">
+    <a href="{% url 'operations:abrir_os' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+        <i class="fa fa-plus"></i> Nova OS
+    </a>
+</div>
+
+<div class="tw-card">
+    <div class="tw-card-header">
+        <h3><i class="fa fa-list-ul mr-2 text-blue-500"></i>Registros da Oficina</h3>
     </div>
-    <div class="box-body table-responsive no-padding">
-        <table class="table table-hover">
+    <div class="overflow-x-auto">
+        <table class="tw-table">
             <thead>
-                <tr class="bg-gray">
+                <tr>
                     <th>Nº OS</th>
                     <th>Data</th>
-                    <th>Veículo (Placa)</th>
+                    <th>Veículo</th>
                     <th>Cliente</th>
-                    <th class="text-center">Ações</th>
+                    <th class="text-center" style="width: 180px;">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for os in ordens %}
                 <tr>
-                    <td><b>{{ os.id|stringformat:"04d" }}</b></td>
+                    <td><span class="font-black text-blue-600">#{{ os.id|stringformat:"04d" }}</span></td>
                     <td>{{ os.data_abertura|date:"d/m/Y H:i" }}</td>
-                    <td><span class="label label-default">{{ os.veiculo.placa }}</span> {{ os.veiculo.modelo }}</td>
+                    <td>
+                        <span class="tw-badge tw-badge-gray mr-1">{{ os.veiculo.placa }}</span>
+                        <span class="font-medium">{{ os.veiculo.modelo }}</span>
+                    </td>
                     <td>{{ os.veiculo.cliente.nome }}</td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            <!-- BOTÃO FINALIZAR (CHECKLIST COMPLETO) -->
-                            <a href="{% url 'operations:detalhes_os' os.id %}" class="btn btn-xs btn-info" title="Abrir Checklist">
-                                <i class="fa fa-list-alt"></i> Checklist
-                            </a>
-                            <!-- BOTÃO EDITAR (ABRIR_OS EM MODO EDIÇÃO) -->
-                            <a href="{% url 'operations:editar_os' os.id %}" class="btn btn-xs btn-warning" title="Editar Dados">
-                                <i class="fa fa-pencil"></i>
-                            </a>
-                            <!-- BOTÃO EXCLUIR (MODAL) -->
-                            <button type="button" class="btn btn-xs btn-danger" 
-                                    onclick="confirmarExclusao('{% url 'operations:excluir_os' os.id %}', 'OS #{{ os.id }} - {{ os.veiculo.placa }}')">
-                                <i class="fa fa-trash"></i>
-                            </button>
+                    <td>
+                        <div class="tw-actions justify-center">
+                            <a href="{% url 'operations:detalhes_os' os.id %}" class="tw-btn-icon tw-btn-edit" title="Checklist" style="background:#dbeafe;color:#2563eb;"><i class="fa fa-list-alt"></i></a>
+                            <a href="{% url 'operations:editar_os' os.id %}" class="tw-btn-icon tw-btn-edit" title="Editar"><i class="fa fa-pencil"></i></a>
+                            <a href="{% url 'operations:imprimir_os' os.id %}" class="tw-btn-icon" title="Imprimir" style="background:#f0fdf4;color:#16a34a;"><i class="fa fa-print"></i></a>
+                            <button class="tw-btn-icon tw-btn-delete" onclick="confirmarExclusao('{% url 'operations:excluir_os' os.id %}', 'OS #{{ os.id }} - {{ os.veiculo.placa }}')" title="Excluir"><i class="fa fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center" style="padding: 20px;">Nenhuma Ordem de Serviço encontrada.</td>
-                </tr>
+                <tr><td colspan="5" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhuma Ordem de Serviço encontrada.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

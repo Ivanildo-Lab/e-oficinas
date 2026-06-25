@@ -1,21 +1,38 @@
 {% extends 'base.html' %}
+{% block titulo_cabecalho %}{{ titulo }}{% endblock %}
 {% block content %}
-<div class="box box-primary">
-    <div class="box-header with-border"><h3 class="box-title">{{ titulo }}</h3></div>
-    <form method="post">
-        {% csrf_token %}
-        <div class="box-body">
-            <div class="form-group">
-                <label>Nome do Mecânico</label>
-                {{ form.nome }}
-            </div>
-            <div class="checkbox">
-                <label>{{ form.ativo }} Mecânico Ativo (Aparece na OS)</label>
-            </div>
+<div class="max-w-xl mx-auto bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-10">
+    <div class="flex items-center gap-4 mb-10 border-b pb-6">
+        <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center">
+            <i class="fa fa-wrench text-xl"></i>
         </div>
-        <div class="box-footer">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="{% url 'workshops:lista_mecanicos' %}" class="btn btn-default">Cancelar</a>
+        <div>
+            <h3 class="font-black text-slate-800 uppercase text-base tracking-tighter">{{ titulo }}</h3>
+            <p class="text-sm text-slate-400 font-medium">Preencha os dados do mecânico para salvar</p>
+        </div>
+    </div>
+
+    <form method="post" class="tw-form space-y-6">
+        {% csrf_token %}
+
+        <div>
+            <label>{{ form.nome.label }}</label>
+            {{ form.nome }}
+            {% if form.nome.errors %}<p class="error-msg">{{ form.nome.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="flex items-center gap-3">
+            {{ form.ativo }}
+            <label for="id_ativo" class="!text-sm !font-bold !text-slate-500 !uppercase !tracking-normal !mb-0">Mecânico Ativo (aparece na OS)</label>
+        </div>
+
+        <div class="flex gap-4 pt-8 border-t border-slate-50">
+            <a href="{% url 'workshops:lista_mecanicos' %}" class="flex-1 text-center py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 transition">
+                CANCELAR
+            </a>
+            <button type="submit" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition">
+                SALVAR DADOS
+            </button>
         </div>
     </form>
 </div>
