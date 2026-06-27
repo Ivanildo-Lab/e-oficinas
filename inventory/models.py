@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone as tz
 from django.core.exceptions import ValidationError
 from workshops.models import Oficina
 
@@ -60,9 +61,12 @@ class ItemEstoque(models.Model):
     referencia = models.CharField(max_length=100, blank=True, null=True)
     nome_item = models.CharField(max_length=200)
     descricao = models.TextField(blank=True)
+    aplicacao = models.TextField(blank=True, null=True, verbose_name='Aplicação', help_text='Descreva onde e como utilizar este item')
     quantidade = models.IntegerField(default=0)
     preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     minimo_ideal = models.IntegerField(default=1)
+    foto = models.ImageField(upload_to='produtos/', blank=True, null=True, verbose_name='Foto do Produto')
+    data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', default=tz.now)
 
     class Meta:
         ordering = ['nome_item']

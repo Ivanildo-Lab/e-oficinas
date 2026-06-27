@@ -24,14 +24,16 @@ def lista_itens(request):
 def novo_item(request):
     oficina = get_oficina(request)
     if request.method == 'POST':
-        form = ItemEstoqueForm(request.POST, oficina=oficina)
+        form = ItemEstoqueForm(request.POST, request.FILES, oficina=oficina)
         if form.is_valid():
             item = form.save(commit=False)
             item.oficina = oficina
+            if not item.data_cadastro:
+                item.data_cadastro = timezone.now()
             item.save()
             return redirect('inventory:lista_itens')
     else:
-        form = ItemEstoqueForm(oficina=oficina)
+        form = ItemEstoqueForm(oficina=oficina, initial={'data_cadastro': timezone.now().strftime('%Y-%m-%dT%H:%M')})
     return render(request, 'inventory/item_form.html', {'form': form, 'titulo': 'Novo Item'})
 
 
@@ -40,7 +42,7 @@ def editar_item(request, pk):
     oficina = get_oficina(request)
     item = get_object_or_404(ItemEstoque, pk=pk, oficina=oficina)
     if request.method == 'POST':
-        form = ItemEstoqueForm(request.POST, instance=item, oficina=oficina)
+        form = ItemEstoqueForm(request.POST, request.FILES, instance=item, oficina=oficina)
         if form.is_valid():
             form.save()
             return redirect('inventory:lista_itens')

@@ -22,6 +22,7 @@
         <table class="tw-table">
             <thead>
                 <tr>
+                    <th class="text-center" style="width: 70px;">Foto</th>
                     <th>Item</th>
                     <th>Marca</th>
                     <th>Ref.</th>
@@ -30,12 +31,26 @@
                     <th>Preço Unit.</th>
                     <th>Valor Total</th>
                     <th class="text-center">Mínimo</th>
-                    <th class="text-center">Ações</th>
+                    <th class="text-center" style="width: 120px;">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in itens %}
                 <tr class="{% if item.quantidade <= item.minimo_ideal %}bg-red-50{% endif %}">
+                    <td class="text-center" style="vertical-align: middle;">
+                        {% if item.foto %}
+                        <img src="{{ item.foto.url }}" alt="{{ item.nome_item }}" 
+                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer;"
+                             onclick="openPhotoModal('{{ item.foto.url }}')"
+                             onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+                             onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"
+                             title="Clique para ampliar">
+                        {% else %}
+                        <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fa fa-image" style="color: #94a3b8; font-size: 18px;"></i>
+                        </div>
+                        {% endif %}
+                    </td>
                     <td class="font-semibold">{{ item.nome_item }}</td>
                     <td>{{ item.marca|default:'-' }}</td>
                     <td>{{ item.referencia|default:'-' }}</td>
@@ -52,16 +67,45 @@
                     <td class="text-center">{{ item.minimo_ideal }}</td>
                     <td>
                         <div class="tw-actions justify-center">
+                            {% if item.foto %}
+                            <button onclick="openPhotoModal('{{ item.foto.url }}')" class="tw-btn-icon tw-btn-view" title="Ver Foto"><i class="fa fa-eye"></i></button>
+                            {% endif %}
                             <a href="{% url 'inventory:editar_item' item.pk %}" class="tw-btn-icon tw-btn-edit" title="Editar"><i class="fa fa-pencil"></i></a>
                             <button onclick="confirmarExclusao('{% url 'inventory:excluir_item' item.pk %}', '{{ item.nome_item }}');" class="tw-btn-icon tw-btn-delete" title="Excluir"><i class="fa fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="9" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhum item cadastrado.</td></tr>
+                <tr><td colspan="10" class="tw-empty"><i class="fa fa-info-circle mr-1"></i> Nenhum item cadastrado.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- MODAL DE VISUALIZAÇÃO DA FOTO -->
+<div id="photoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 16px; border-radius: 16px; max-width: 90%; max-height: 90vh; position: relative;">
+        <button onclick="closePhotoModal()" style="position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; background: #dc2626; color: white; border-radius: 50%; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">
+            <i class="fa fa-times"></i>
+        </button>
+        <img id="modalImage" src="" alt="Foto do produto" style="max-width: 100%; max-height: 80vh; border-radius: 12px;">
+    </div>
+</div>
+
+<script>
+function openPhotoModal(url) {
+    var modal = document.getElementById('photoModal');
+    document.getElementById('modalImage').src = url;
+    modal.style.display = 'flex';
+}
+
+function closePhotoModal() {
+    document.getElementById('photoModal').style.display = 'none';
+}
+
+document.getElementById('photoModal').addEventListener('click', function(e) {
+    if (e.target === this) closePhotoModal();
+});
+</script>
 {% endblock %}

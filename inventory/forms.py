@@ -28,16 +28,19 @@ class SetorForm(forms.ModelForm):
 class ItemEstoqueForm(forms.ModelForm):
     class Meta:
         model = ItemEstoque
-        fields = ['grupo', 'nome_item', 'marca', 'referencia', 'descricao', 'quantidade', 'preco_unitario', 'minimo_ideal']
+        fields = ['grupo', 'nome_item', 'marca', 'referencia', 'descricao', 'aplicacao', 'quantidade', 'preco_unitario', 'minimo_ideal', 'foto', 'data_cadastro']
         widgets = {
             'grupo': forms.Select(attrs={'class': 'form-control'}),
             'nome_item': forms.TextInput(attrs={'class': 'form-control'}),
             'marca': forms.TextInput(attrs={'class': 'form-control'}),
             'referencia': forms.TextInput(attrs={'class': 'form-control'}),
             'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'aplicacao': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'quantidade': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
             'preco_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
             'minimo_ideal': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'foto': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'data_cadastro': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -45,6 +48,8 @@ class ItemEstoqueForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if oficina is not None:
             self.fields['grupo'].queryset = GrupoProduto.objects.filter(oficina=oficina)
+        self.fields['data_cadastro'].disabled = True
+        self.fields['data_cadastro'].help_text = 'Preenchido automaticamente'
 
     def clean_quantidade(self):
         quantidade = self.cleaned_data.get('quantidade')

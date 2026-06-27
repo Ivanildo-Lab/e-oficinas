@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <form method="post" class="tw-form space-y-6">
+    <form method="post" enctype="multipart/form-data" class="tw-form space-y-6">
         {% csrf_token %}
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -48,6 +48,13 @@
             {% if form.descricao.errors %}<p class="error-msg">{{ form.descricao.errors.0 }}</p>{% endif %}
         </div>
 
+        <div>
+            <label>{{ form.aplicacao.label }}</label>
+            {{ form.aplicacao }}
+            {% if form.aplicacao.errors %}<p class="error-msg">{{ form.aplicacao.errors.0 }}</p>{% endif %}
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Descreva onde e como utilizar este item</p>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
                 <label>{{ form.quantidade.label }}</label>
@@ -66,6 +73,36 @@
             </div>
         </div>
 
+        <!-- DATA DE CADASTRO -->
+        <div>
+            <label>{{ form.data_cadastro.label }}</label>
+            {{ form.data_cadastro }}
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Preenchido automaticamente no cadastro</p>
+        </div>
+
+        <!-- FOTO DO PRODUTO -->
+        <div>
+            <label>{{ form.foto.label }}</label>
+            <div style="margin-top: 8px; text-align: center;">
+                {% if form.instance.foto %}
+                <div style="margin-bottom: 12px;">
+                    <img src="{{ form.instance.foto.url }}" alt="Foto atual" 
+                         style="width: 180px; height: 180px; object-fit: cover; border-radius: 16px; border: 2px solid #e2e8f0; margin: 0 auto; display: block;">
+                    <p style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Foto atual (deixe vazio para manter)</p>
+                </div>
+                {% endif %}
+                <input type="file" name="foto" id="id_foto" accept="image/*" 
+                       style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 14px; box-sizing: border-box;">
+                <div id="preview-container" style="margin-top: 12px; display: none;">
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">Preview:</p>
+                    <img id="image-preview" src="" alt="Preview" 
+                         style="width: 180px; height: 180px; object-fit: cover; border-radius: 16px; border: 2px solid #e2e8f0; margin: 0 auto; display: block;">
+                </div>
+            </div>
+            {% if form.foto.errors %}<p class="error-msg">{{ form.foto.errors.0 }}</p>{% endif %}
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 4px; text-align: center;">Formatos aceitos: JPG, PNG, GIF</p>
+        </div>
+
         <div class="flex gap-4 pt-8 border-t border-slate-50">
             <a href="{% url 'inventory:lista_itens' %}" class="flex-1 text-center py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 transition">
                 CANCELAR
@@ -76,4 +113,44 @@
         </div>
     </form>
 </div>
+
+<!-- MODAL DE VISUALIZAÇÃO DA FOTO -->
+<div id="photoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 16px; border-radius: 16px; max-width: 90%; max-height: 90vh; position: relative;">
+        <button onclick="closePhotoModal()" style="position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; background: #dc2626; color: white; border-radius: 50%; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">
+            <i class="fa fa-times"></i>
+        </button>
+        <img id="modalImage" src="" alt="Foto do produto" style="max-width: 100%; max-height: 80vh; border-radius: 12px;">
+    </div>
+</div>
+
+<script>
+// Preview da imagem antes do upload
+document.getElementById('id_foto').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('image-preview').src = event.target.result;
+            document.getElementById('preview-container').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Modal de visualização
+function openPhotoModal(url) {
+    var modal = document.getElementById('photoModal');
+    document.getElementById('modalImage').src = url;
+    modal.style.display = 'flex';
+}
+
+function closePhotoModal() {
+    document.getElementById('photoModal').style.display = 'none';
+}
+
+document.getElementById('photoModal').addEventListener('click', function(e) {
+    if (e.target === this) closePhotoModal();
+});
+</script>
 {% endblock %}
