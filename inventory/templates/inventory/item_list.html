@@ -3,13 +3,13 @@
 {% block titulo_cabecalho %}Itens em Estoque{% endblock %}
 {% block content %}
 <div class="mb-6 flex flex-wrap gap-3">
-    <a href="{% url 'inventory:novo_item' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl hover:bg-emerald-600 transition">
+    <a href="{% url 'inventory:novo_item' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-bold text-base rounded-xl hover:bg-emerald-600 transition">
         <i class="fa fa-plus"></i> Novo Item
     </a>
-    <a href="{% url 'inventory:lista_movimentos' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white font-bold text-sm rounded-xl hover:bg-blue-600 transition">
+    <a href="{% url 'inventory:lista_movimentos' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white font-bold text-base rounded-xl hover:bg-blue-600 transition">
         <i class="fa fa-exchange"></i> Movimentações
     </a>
-    <a href="{% url 'inventory:relatorio_estoque' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-500 text-white font-bold text-sm rounded-xl hover:bg-slate-600 transition">
+    <a href="{% url 'inventory:relatorio_estoque' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-500 text-white font-bold text-base rounded-xl hover:bg-slate-600 transition">
         <i class="fa fa-bar-chart"></i> Relatório
     </a>
 </div>
@@ -40,18 +40,18 @@
                     <td class="text-center" style="vertical-align: middle;">
                         {% if item.foto %}
                         <img src="{{ item.foto.url }}" alt="{{ item.nome_item }}" 
-                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer;"
+                             style="width: 56px; height: 56px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer;"
                              onclick="openPhotoModal('{{ item.foto.url }}')"
                              onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
                              onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"
                              title="Clique para ampliar">
                         {% else %}
-                        <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <i class="fa fa-image" style="color: #94a3b8; font-size: 18px;"></i>
+                        <div style="width: 56px; height: 56px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fa fa-image" style="color: #94a3b8; font-size: 20px;"></i>
                         </div>
                         {% endif %}
                     </td>
-                    <td class="font-semibold">{{ item.nome_item }}</td>
+                    <td class="font-bold" style="font-size: 1.1rem; color: #0f172a;">{{ item.nome_item }}</td>
                     <td>{{ item.marca|default:'-' }}</td>
                     <td>{{ item.referencia|default:'-' }}</td>
                     <td>{{ item.grupo|default:'-' }}</td>
@@ -62,8 +62,8 @@
                             <span class="tw-badge tw-badge-green">{{ item.quantidade }}</span>
                         {% endif %}
                     </td>
-                    <td>R$ {{ item.preco_unitario }}</td>
-                    <td class="font-semibold">R$ {{ item.valor_total }}</td>
+                    <td style="font-weight: 600;">R$ {{ item.preco_unitario }}</td>
+                    <td class="font-bold" style="color: #0f172a; font-size: 1.0625rem;">R$ {{ item.valor_total }}</td>
                     <td class="text-center">{{ item.minimo_ideal }}</td>
                     <td>
                         <div class="tw-actions justify-center">
