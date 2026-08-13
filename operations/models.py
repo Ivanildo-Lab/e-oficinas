@@ -84,7 +84,6 @@ class OrdemServico(models.Model):
     data_abertura = models.DateTimeField(auto_now_add=True)
 
     nivel_combustivel = models.IntegerField(default=0) # 0 a 100
-    tem_documento = models.BooleanField(default=False)
     
     # Salvaremos o "mapa de riscos" e a "assinatura" como dados de imagem Base64
     mapa_avarias_base64 = models.TextField(blank=True, null=True)
@@ -92,7 +91,6 @@ class OrdemServico(models.Model):
 
     ultima_troca_oleo_data = models.DateField(null=True, blank=True)
     ultima_troca_oleo_km = models.IntegerField(null=True, blank=True)
-    luz_injecao_acesa = models.BooleanField(default=False)
     conclusao_tecnica = models.TextField(blank=True, null=True)
 
 class ChecklistItem(models.Model):

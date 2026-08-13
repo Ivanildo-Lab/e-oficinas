@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q, Sum
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
 
 from workshops.utils import get_oficina

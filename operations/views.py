@@ -159,29 +159,6 @@ def abrir_os(request):
     })
 
 @login_required
-def buscar_dados_veiculo(request, veiculo_id):
-    oficina = get_oficina(request)
-    veiculo = get_object_or_404(Veiculo, id=veiculo_id, oficina=oficina)
-    
-    # Retornamos todos os campos para preencher o topo da OS
-    data = {
-        'cliente_nome': veiculo.cliente.nome,
-        'cliente_tel': veiculo.cliente.telefone,
-        'marca': veiculo.marca,
-        'modelo': veiculo.modelo,
-        'versao': veiculo.versao or '',
-        'motor': veiculo.motor or '',
-        'ano': veiculo.ano,
-        'cor': veiculo.cor or '',
-        'transmissao': veiculo.transmissao,
-        'combustivel': veiculo.combustivel,
-        'chassi': veiculo.chassi or '',
-        'tem_abs': veiculo.tem_abs,
-        'portas': veiculo.portas,
-    }
-    return JsonResponse(data)
-
-@login_required
 def detalhes_os(request, os_id):
     oficina = get_oficina(request)
     ordem = get_object_or_404(OrdemServico, id=os_id, oficina=oficina)
@@ -251,16 +228,8 @@ def excluir_os(request, os_id):
     os_obj = get_object_or_404(OrdemServico, id=os_id, oficina=oficina)
     if request.method == 'POST':
         os_obj.delete()
-    return redirect('operations:lista_os')
-
-@login_required
-def excluir_os(request, os_id):
-    oficina = get_oficina(request)
-    os_instancia = get_object_or_404(OrdemServico, id=os_id, oficina=oficina)
-    if request.method == 'POST':
-        os_instancia.delete()
         return redirect('operations:lista_os')
-    return render(request, 'operations/confirmar_exclusao.html', {'objeto': os_instancia})
+    return render(request, 'operations/confirmar_exclusao.html', {'objeto': os_obj})
 
 
 
@@ -290,14 +259,7 @@ def buscar_dados_veiculo(request, veiculo_id):
 def imprimir_os(request, os_id):
     oficina = get_oficina(request)
     os_obj = get_object_or_404(OrdemServico, id=os_id, oficina=oficina)
-    return render(request, 'operations/imprimir_os.html', {'os': os_obj})
-
-@login_required
-def imprimir_os(request, os_id):
-    oficina = get_oficina(request)
-    os_obj = get_object_or_404(OrdemServico, id=os_id, oficina=oficina)
     
-    # Buscamos os itens do checklist para exibir na impressão
     itens_entrada = os_obj.itens_checklist.filter(fase='entrada')
     itens_saida = os_obj.itens_checklist.filter(fase='saida')
 
@@ -307,8 +269,6 @@ def imprimir_os(request, os_id):
         'itens_saida': itens_saida,
         'oficina': oficina
     })
-
-from .models import OSFoto
 
 @login_required
 def exibir_foto(request, foto_id):
