@@ -1,0 +1,5 @@
+# Garante LF nos arquivos de shell/Docker (evita erro de execucao no Linux)
+docker/entrypoint.sh text eol=lf
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+*.sh text eol=lf

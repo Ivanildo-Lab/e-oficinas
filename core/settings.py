@@ -21,11 +21,41 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG') == 'True'
+# ON_DOCKER=1 quando roda no Coolify (setado pelo Dockerfile/compose).
+ON_DOCKER = os.environ.get('ON_DOCKER') == '1'
 
-ALLOWED_HOSTS = ['eoficinas-geficogestor.pythonanywhere.com', 'localhost']
+# SECURITY WARNING: keep the secret key used in production secret!
+# Ordem: DJANGO_SECRET_KEY (Coolify) -> SECRET_KEY (.env local) -> fallback dev.
+SECRET_KEY = (
+    os.environ.get('DJANGO_SECRET_KEY')
+    or os.getenv('SECRET_KEY')
+    or 'django-insecure-e-oficinas-troque-esta-chave-em-producao'
+)
+
+# DEBUG: DJANGO_DEBUG (Coolify) -> DEBUG (.env local) -> padrao (False no Docker).
+if os.environ.get('DJANGO_DEBUG') is not None:
+    DEBUG = os.environ['DJANGO_DEBUG'].strip().lower() in ('true', '1', 'yes')
+elif os.getenv('DEBUG') is not None:
+    DEBUG = os.getenv('DEBUG') == 'True'
+else:
+    DEBUG = not ON_DOCKER
+
+# Hosts vem do Coolify (DJANGO_ALLOWED_HOSTS, separado por virgula).
+_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS')
+if _hosts_env:
+    ALLOWED_HOSTS = [h.strip() for h in _hosts_env.split(',') if h.strip()]
+elif ON_DOCKER:
+    ALLOWED_HOSTS = ['*']
+else:
+    # Dev local / PythonAnywhere (legado)
+    ALLOWED_HOSTS = ['eoficinas-geficogestor.pythonanywhere.com', 'localhost', '127.0.0.1']
+
+# Proxy reverso (Coolify/Caddy): origens de CSRF confiaveis.
+CSRF_TRUSTED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
+    if o.strip()
+]
 
 
 # Application definition
@@ -49,6 +79,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise entrega os estaticos direto do Gunicorn (sem nginx)
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,16 +117,25 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# VPS/Coolify: credenciais via env (DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD).
+# No compose o DB_HOST vem como "db" (nome do servico MySQL).
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': os.environ.get('DB_NAME', 'eoficinas_db'),
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '7895123'),
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
     }
 }
+
+# Tempo maximo de espera pelo MySQL subir (usado pelo entrypoint do Docker)
+DB_WAIT_SECONDS = int(os.environ.get('DB_WAIT_SECONDS', '60'))
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -139,5 +180,21 @@ LOGOUT_REDIRECT_URL = 'login'
 # Certifique-se de que a pasta static está correta
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# WhiteNoise: serve os estaticos do Gunicorn com gzip/cache de 1 ano
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
+WHITENOISE_MAX_AGE = 31536000
+
+# Atras do proxy do Coolify (Caddy) o HTTPS termina no proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

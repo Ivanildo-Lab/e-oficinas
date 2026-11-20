@@ -1,0 +1,58 @@
+# e-oficinas - Docker Compose para Coolify (VPS Hostinger)
+# Domínio: eoficinas.ivcsofthouse.com.br
+#
+# No Coolify: New Resource -> Docker Compose -> apontar para este arquivo.
+# O Coolify gerencia o proxy (Caddy) e o TLS; o app expõe só a porta interna.
+# As variáveis de ambiente são cadastradas no painel do Coolify.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: eoficinas:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      ON_DOCKER: "1"
+      DB_HOST: db
+      DB_PORT: "3306"
+      PORT: "8000"
+    volumes:
+      - media_data:/app/media
+    expose:
+      - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "-H", "Host: eoficinas.ivcsofthouse.com.br", "http://localhost:8000/login/"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-eoficinas_db}
+      MYSQL_USER: ${DB_USER:-eoficinas}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Defina DB_ROOT_PASSWORD no .env}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  db_data:
+  media_data:
